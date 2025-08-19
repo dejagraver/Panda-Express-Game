@@ -118,10 +118,10 @@ function setup()
 			width: 50,
 			height: 20,
 		});
-		collectableFound = true;
+
 	}
 
-	//Mountains - draw multiple Mountains of random amount
+	//Mountains - draw multiple Mountains of random amount across the x-axis
 	mountain = {x_pos: 600, y_pos: height * 1.13/4, size: 50};
 	var mountainX = -400;
 	mountainArray_x = [];
@@ -131,7 +131,7 @@ function setup()
 		mountainX += random(400, 600);
 	}
 	
-	//Canyons - draw multiple Canyons of random amount
+	//Canyons - draw multiple Canyons of random amount across the screen
 	t_canyon = [];
 	var currentX = 400;
 	for(var i = 0; i < 40; i++) 
@@ -141,26 +141,30 @@ function setup()
 	}
 	canyon = {x_pos: 400, y_pos: 432, width: 90, height: 200};
 	
-	//Collectables - draw multiple collectables of random amount
-	collectable = {y_pos: 425, size: 1};
+	//Collectables - place one at each step position and random ground positions
 	t_collectable = [];
+	
+	// Step collectables
+	for(var i = 0; i < stepsArray.length; i++){
+		t_collectable.push({
+			x_pos: stepsArray[i].x_pos + 25,
+			y_pos: stepsArray[i].y_pos - 30,
+			size: 1,
+			isFound: false
+		});
+	}
+	
+	// Ground collectables
 	var collectableX = 550;
-	for(var i = 0; i < 50; i++) 
-	{
-		t_collectable.push(collectableX);
-		collectableX += random(50, 500);
+	for(var i = 0; i < 20; i++){
+		t_collectable.push({
+			x_pos: collectableX,
+			y_pos: floorPos_y - 15,
+			size: 1,
+			isFound: false
+		});
+		collectableX += random(100, 400);
 	}
-	collectableFound = [];
-	for(var i = 0; i < 40; i++) 
-	{
-    	collectableFound.push(false);
-	}
-
-	// for(var i = 0; i < stepsArray.length; i++){
-	// 	t_collectable.push(stepsArray[i].x_pos);
-	// 	collectableFound.push(false);
-
-	// }
 
 }
 
@@ -228,6 +232,7 @@ function draw()
 	//CANYON
 	drawCanyon(t_canyon);
 	isTooCloseToCanyon();
+
 	// Make character fall if plummeting
 	if(isPlummeting == true)
 	{
@@ -489,76 +494,63 @@ function drawTrees()
 
 function drawCollectable(t_collectable){
 	for(var i = 0; i < t_collectable.length; i++)
+	{
+		if(!t_collectable[i].isFound)
 		{
-			// Determine y position - check if this collectable is on a step
-
-			
-			// Check if collectable hasn't been collected, if collectable is a step collectable or regular collectable close to the canyon 
-			if(collectableFound[i] == false && (isStepCollectable || !isTooCloseToCanyon(t_collectable[i])))
-			{
-				noStroke();
-				fill(0);
-				rect(//samurai sword black handle
-					t_collectable[i],
-					collectableY,
-					collectable.size + 3,
-					collectable.size + 15
-				)
-					//samurai sword blade
-					fill(211, 211, 211);
-					rect(
-						t_collectable[i],
-						collectableY -30,
-						4,
-						30
-					)
-						//samurai sword golden tsuba/guard
-						fill(218, 165, 32);
-						rect(
-							t_collectable[i] - 6,
-							collectableY,
-							collectable.size + 14,
-							collectable.size + 1
-						)
-							//samurai sword edge
-							fill(211, 211, 211);
-							triangle(
-								t_collectable[i],
-								collectableY -24,
-								t_collectable[i] + 4,
-								collectableY -24,
-								t_collectable[i] + 4,
-								collectableY -49
-							)
-								//samurai sword detail/edge pattern
-								stroke(128, 128, 128);
-								strokeWeight(0.1);
-								line(
-									t_collectable[i] + 1.5,
-									collectableY -25,
-									t_collectable[i] + 1.5,
-									collectableY -5
-								)
-			}
+			noStroke();
+			fill(0);
+			rect(//samurai sword black handle
+				t_collectable[i].x_pos,
+				t_collectable[i].y_pos,
+				t_collectable[i].size + 3,
+				t_collectable[i].size + 15
+			)
+			//samurai sword blade
+			fill(211, 211, 211);
+			rect(
+				t_collectable[i].x_pos,
+				t_collectable[i].y_pos - 30,
+				4,
+				30
+			)
+			//samurai sword golden tsuba/guard
+			fill(218, 165, 32);
+			rect(
+				t_collectable[i].x_pos - 6,
+				t_collectable[i].y_pos,
+				t_collectable[i].size + 14,
+				t_collectable[i].size + 1
+			)
+			//samurai sword edge
+			fill(211, 211, 211);
+			triangle(
+				t_collectable[i].x_pos,
+				t_collectable[i].y_pos - 24,
+				t_collectable[i].x_pos + 4,
+				t_collectable[i].y_pos - 24,
+				t_collectable[i].x_pos + 4,
+				t_collectable[i].y_pos - 49
+			)
+			//samurai sword detail/edge pattern
+			stroke(128, 128, 128);
+			strokeWeight(0.1);
+			line(
+				t_collectable[i].x_pos + 1.5,
+				t_collectable[i].y_pos - 25,
+				t_collectable[i].x_pos + 1.5,
+				t_collectable[i].y_pos - 5
+			)
 		}
+	}
 }
 
 function checkCollectable(t_collectable)
 {
     for(var i = 0; i < t_collectable.length; i++) 
     {
-        // Determine y position - check if this collectble is on a step
-        collectableY = collectable.y_pos; // Default ground position
-        for(var j = 0; j < stepsArray.length; j++) {
-            if(t_collectable[i] == stepsArray[j].x_pos) {
-                collectableY = stepsArray[j].y_pos - 30; // Position above step
-                break;
-            }
-        }
-        
-        if(collectableFound[i] == false && dist(gameChar_x, gameChar_y, t_collectable[i], collectableY) <= 30)
+        if(!t_collectable[i].isFound && dist(gameChar_x, gameChar_y, t_collectable[i].x_pos, t_collectable[i].y_pos) <= 30)
         {
-            collectableFound[i] = true;
+            t_collectable[i].isFound = true;
             game_score += 5;
 			samuraiSound.play();
         }
