@@ -31,7 +31,6 @@ var cameraPosX;
 var flagpole;
 var steps;
 var onStep;
-// var platforms;
 var enemies;
 
 //ARRAYS
@@ -75,7 +74,7 @@ function setup()
 	gameCharLives = 3;
 	game_score = 0;
 	enemies = []; 
-	enemies.push(new Enemy(100, floorPos_y, 100));
+	enemies.push(new Enemy(500, floorPos_y, 100));
 
 	//Game Character Movement
 	isLeft = false;
@@ -90,9 +89,6 @@ function setup()
 	// world. needed for collision detection
 	gameChar_world_x = gameChar_x;
 	scrollPos = 0; //Variable to controll help with collision
-
-	// platforms = []; //Array to hold platform objects
-	// platforms.push(createPlatform(100, floorPos_y - 50, 200, 20));
 
 	//snows 
 	snowPositionsX = [];
@@ -254,16 +250,6 @@ function draw()
 	isTooCloseToCanyon();
 	drawLargeCanyon(t_largeCanyon);
 
-	//Draw Platforms
-	// for(var i = 0; i < platforms.length; i++) {
-	// 	platforms[i].draw();
-	// 	if(gameChar_world_x > platforms[i].x && gameChar_world_x < platforms[i].x + platforms[i].length && 
-	// 		gameChar_y >= platforms[i].y && gameChar_y <= platforms[i].y + 20) {
-	// 		onStep = true;
-	// 		gameChar_y = platforms[i].y;
-	// 	}
-	// }
-
 
 	// Make character fall if plummeting
 	if(isPlummeting == true)
@@ -299,6 +285,19 @@ function draw()
 	checkFlagPole();
 	renderFlagpole();
 
+	//ENEMIES
+	for(var i = 0; i < enemies.length; i++){
+		enemies[i].draw();
+		if(enemies[i].checkCollision(gameChar_x, gameChar_y)){
+			isPlummeting = true;
+			gameCharLives -= 1;
+			deathSound.play();
+			enemies[i].reset(); // Reset enemy position after collision
+		}
+	}
+
+	// drawEnemy();
+	
 	//GAMEOVER MESSAGE if lives < 1
 	if(gameCharLives < 1)
 	{
@@ -650,39 +649,6 @@ function checkFlagPole(){
     console.log(d);
 }
 
-// function enemies(x, y, range) {
-	
-// 		this.x = x;
-// 		this.y = y;
-// 		this.range = range;
-// 		this.currentX = x;
-// 		this.increment = 2; 
-// 		this.update = function() {
-// 			this.currentX += this.increment;
-// 			if(this.currentX > this.x + this.range || this.currentX < this.x - this.range) {
-// 				this.increment *= -1; // Reverse direction
-// 			}
-// 		}
-// 		this.draw = function() {
-// 			noStroke();
-// 			fill(255, 0, 0);
-// 			ellipse(this.currentX - cameraPosX, this.y, 20, 20); // Draw enemy as a red circle
-// 		}
-// 		this.isColliding = function(gameChar_x, gameChar_y) {
-// 			var d = dist(this.currentX - cameraPosX, this.y, gameChar_x, gameChar_y);
-// 			if(d < 20) { // Collision radius
-// 				return true;
-// 			} else {
-// 				return false;
-// 			}
-// 		}
-// 		this.reset = function() {
-// 			this.currentX = this.x; // Reset to initial position
-// 			this.increment = 2; // Reset increment
-// 		}
-	
-// }
-
 function Enemy(x, y, range) {
 	
 		this.x = x;
@@ -691,6 +657,9 @@ function Enemy(x, y, range) {
 		this.currentX = x;
 		this.increment = 2; 
 		this.update = function() {
+			this.currentX += this.increment;
+			// Check if the enemy has reached the range limits
+			// Reverse direction if it has
 			if(this.currentX >= this.x + this.range) {
 				this.increment = -1; // Reverse direction
 			}
@@ -701,12 +670,103 @@ function Enemy(x, y, range) {
 		this.draw = function() {
 			this.update(); // Update position before drawing
 			noStroke();
-			fill(255, 0, 0);
-			ellipse(this.currentX - cameraPosX, this.y, 20, 20); // Draw enemy as a red circle
+			//draw the samurai head
+			//samurai bun
+			fill(0,0,0);
+			triangle(this.currentX - cameraPosX - 5, this.y - 65, this.currentX - cameraPosX + 5, this.y - 65, this.currentX - cameraPosX, this.y - 75); // Bun
+			ellipse(this.currentX - cameraPosX, this.y - 65, 10, 10); // Bun
+			//hair
+			fill(0,0,0);
+			ellipse(this.currentX - cameraPosX, this.y - 50, 30, 30); // Hair
+			//bun scrunchie
+			fill(255,250,240);
+			ellipse(this.currentX - cameraPosX, this.y - 65, 6, 2); // Bun scrunchie
+			//samurai face
+			//face
+			fill(255,228,196);
+			ellipse(this.currentX - cameraPosX, this.y - 45, 25, 25); // Head
+			//ears
+			fill(255,228,196);
+			ellipse(this.currentX - cameraPosX - 12, this.y - 46, 5, 7); // Left ear
+			ellipse(this.currentX - cameraPosX + 12, this.y - 46, 5, 7); // Right ear
+			//hait tendrils 
+			fill(0,0,0);
+			ellipse(this.currentX - cameraPosX - 10, this.y - 50, 3, 12); // Left tendril
+			ellipse(this.currentX - cameraPosX + 10, this.y - 50, 3, 12); // Right
+			//forhead hair
+			fill(0,0,0);
+			rect(this.currentX - cameraPosX - 10, this.y - 58, 20, 5); // Forehead hair
+			//neck
+			fill(255,228,196);
+			rect(this.currentX - cameraPosX - 3, this.y - 39, 5, 8); // Neck
+			//kamishimo clothing body
+			fill(100,149,237);
+			rect(this.currentX - cameraPosX - 13, this.y - 32, 25, 32); // Body
+			//kashimono clothing sleeves
+			fill(100,149,237);
+			triangle(this.currentX - cameraPosX - 13, this.y - 29, this.currentX - cameraPosX - 19, this.y - 10, this.currentX - cameraPosX - 40, this.y); // Left sleeve
+			triangle(this.currentX - cameraPosX + 12, this.y - 29, this.currentX - cameraPosX + 19, this.y - 10, this.currentX - cameraPosX + 40, this.y); // Right sleeve
+			//kamishimo clothing sholders
+			fill(100,149,237);
+			triangle(this.currentX - cameraPosX - 13, this.y - 32, this.currentX - cameraPosX - 13, this.y - 22, this.currentX - cameraPosX - 20, this.y - 26); // Left shoulder
+			triangle(this.currentX - cameraPosX + 12, this.y - 32, this.currentX - cameraPosX + 12, this.y - 22, this.currentX - cameraPosX + 20, this.y - 26); // Right shoulder
+			//kamishimo shoes 
+			fill(255);
+			rect(this.currentX - cameraPosX - 7, this.y, 5, 3); // Left shoe
+			rect(this.currentX - cameraPosX + 3, this.y, 5, 3); // Right shoe
+			//wooden sandals
+			fill(139,69,19);
+			rect(this.currentX - cameraPosX - 7, this.y + 2, 5, 1); // Left sandal
+			rect(this.currentX - cameraPosX + 3, this.y + 2, 5, 1); // Right sandal
+			//kamishimo clothing belt white
+			stroke(0);
+			strokeWeight(0.5);
+			fill(255);
+			rect(this.currentX - cameraPosX - 13, this.y - 16, 25, 3);
+			//kamishimo triangle robe lines centered below neck facing downwards
+			stroke(0);
+			strokeWeight(0.5);
+			fill(255);
+			//triangle in the middle of the body
+			triangle(this.currentX - cameraPosX - 6, this.y - 32, this.currentX - cameraPosX + 6, this.y - 32, this.currentX - cameraPosX, this.y - 25); // Triangle
+			//triangle neck appearance
+			noStroke();
+			fill(255, 228, 196);
+			triangle(this.currentX - cameraPosX - 3, this.y - 32.5, this.currentX - cameraPosX + 2, this.y - 32.5, this.currentX - cameraPosX, this.y - 28); // Triangle neck appearance
+			//kamishimo pant lines
+			stroke(72,61,139);
+			strokeWeight(0.5);
+			line(this.currentX - cameraPosX - 11, this.y - 12, this.currentX - cameraPosX - 13, this.y );
+			line(this.currentX - cameraPosX - 8, this.y - 12, this.currentX - cameraPosX - 10, this.y );
+			line(this.currentX - cameraPosX - 5, this.y - 12, this.currentX - cameraPosX - 7, this.y );
+			line(this.currentX - cameraPosX + 3 , this.y - 12, this.currentX - cameraPosX + 5, this.y );
+			line(this.currentX - cameraPosX + 6, this.y - 12, this.currentX - cameraPosX + 8, this.y );
+			line(this.currentX - cameraPosX + 9, this.y - 12, this.currentX - cameraPosX + 11, this.y );
+			//kamishimo triangle leg part
+			noStroke();
+			fill(0, 0, 0, 140);
+			triangle(this.currentX - cameraPosX - 1, this.y - 12, this.currentX - cameraPosX - 3, this.y, this.currentX - cameraPosX + 2, this.y); // Left leg triangle
+			//draw eyes
+			fill(0);
+			ellipse(this.currentX - cameraPosX - 5, this.y - 48, 5, 6); // Left eye
+			ellipse(this.currentX - cameraPosX + 5, this.y - 48, 5, 6); // Right eye
+			//left eye pupil
+			stroke(0);
+			strokeWeight(0.5);
+			fill(255);
+			ellipse(this.currentX - cameraPosX - 5, this.y - 49, 2, 2); // Left eye pupil
+			ellipse(this.currentX - cameraPosX - 4, this.y - 48, 2, 2); // Left eye pupil
+			//right eye pupil
+			fill(255);
+			ellipse(this.currentX - cameraPosX + 5, this.y - 49, 2, 2); // Right eye pupil
+			ellipse(this.currentX - cameraPosX + 6, this.y - 48, 2, 2); // Right
+			//mouth
+			fill(255,192,203);
+			ellipse(this.currentX - cameraPosX, this.y - 40, 5, 3);		
 		}
 		this.checkCollision = function(gameChar_x, gameChar_y) {
-			var d = dist(this.currentX - cameraPosX, this.y, gameChar_x, gameChar_y);
-			if(d < 20) { // Collision radius
+			var d = dist(this.currentX, this.y, gameChar_x, gameChar_y);
+			if(d < 50) { // Collision radius
 				return true;
 			} else {
 				return false;
@@ -731,27 +791,31 @@ function Enemy(x, y, range) {
 			}
 		}
 }
-// function createPlatform(x, y, width, length) {
 
-// 	var p = {
-// 		x: x,
-// 		y: y,
-// 		length: length,
-// 		draw: function() {
-// 			noStroke();
-// 			fill(150, 75, 0); // Brown color for the platform
-// 			rect(this.x - cameraPosX, this.y, this.length, 20);
-// 		},
-// 		isColliding: function(gameChar_x, gameChar_y) {
-// 			if(gameChar_x > this.x - cameraPosX && gameChar_x < this.x - cameraPosX + this.length &&
-// 			   gameChar_y >= this.y && gameChar_y <= this.y + 20) {
-// 				return true;
-// 			} else {
-// 				return false;
-// 			}
-// 		}
-// 	}
-// 	return p;
+// //Samurai Enemy
+// function drawEnemy(enemy) {
+// 	noStroke();
+// 	fill(255, 0, 0);
+// 	ellipse(enemy.currentX - cameraPosX, enemy.y, 20, 20);
+// 	// Draw the samurai sword
+// 	fill(0);
+// 	rect(enemy.currentX - cameraPosX, enemy.y - 10, 4, 20); // Black handle
+// 	fill(211, 211, 211);
+// 	rect(enemy.currentX - cameraPosX, enemy.y - 30, 4, 20); // Silver blade
+// 	// Draw the samurai sword guard
+// 	fill(218, 165, 32);
+// 	rect(enemy.currentX - cameraPosX - 6, enemy.y - 10, 14, 4); // Gold tsuba/guard
+// 	// Draw the samurai sword edge
+// 	fill(211, 211, 211);
+// 	triangle(enemy.currentX - cameraPosX, enemy.y - 24, 
+// 			enemy.currentX - cameraPosX + 4, enemy.y - 24, 
+// 			enemy.currentX - cameraPosX + 4, enemy.y - 49); // Blade edge
+// 	// Draw the samurai sword detail/edge pattern
+// 	stroke(128, 128, 128);
+// 	strokeWeight(0.1);
+// 	line(enemy.currentX - cameraPosX + 1.5, enemy.y - 25, 
+// 			enemy.currentX - cameraPosX + 1.5, enemy.y - 5); // Edge pattern	
+	
 // }
 
 function drawGameChar(){
