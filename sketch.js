@@ -27,9 +27,12 @@ var snowPositionsX;
 var snowPositionsY;
 var snowDirectionX;
 var snowDirectionY;
-
 var cameraPosX;
 var flagpole;
+var steps;
+var onStep;
+// var platforms;
+var enemies;
 
 //ARRAYS
 var bamboosArray_x; //trees_x
@@ -71,18 +74,25 @@ function setup()
 	gameChar_y = floorPos_y;
 	gameCharLives = 3;
 	game_score = 0;
+	enemies = []; 
+	enemies.push(new Enemy(100, floorPos_y, 100));
+
+	//Game Character Movement
 	isLeft = false;
 	isRight = false;
 	isJumping = false;
 	isPlummeting = false;
 
 	//Flagpole
-	flagpole = {isReached: false, x_pos: 2000};
+	flagpole = {isReached: false, x_pos: 3000};
 	//Update the real position of gameChar for collision detection
 	//variable to store the real position of the gameChar in the game
 	// world. needed for collision detection
 	gameChar_world_x = gameChar_x;
 	scrollPos = 0; //Variable to controll help with collision
+
+	// platforms = []; //Array to hold platform objects
+	// platforms.push(createPlatform(100, floorPos_y - 50, 200, 20));
 
 	//snows 
 	snowPositionsX = [];
@@ -110,11 +120,11 @@ function setup()
 	//Floating Steps - draw multiple Steps
 	stepsArray = [];
 	var stepX = 290; // Starting x position
-	var stepY = 350; // Starting y position
+	var stepY = 300; // Starting y position
 	for(var i = 0; i < 3; i++){
 		stepsArray.push({
-			x_pos: stepX + (i * 190), // 120px apart on x-axis
-			y_pos: stepY - (i * 30), // 30px higher each step
+			x_pos: stepX + (i * 185), // 185px apart on x-axis - for difficulty/challenge
+			y_pos: stepY - (i * 50), // 30px higher each step
 			width: 50,
 			height: 20,
 		});
@@ -141,6 +151,16 @@ function setup()
 	}
 	canyon = {x_pos: 400, y_pos: 432, width: 90, height: 200};
 	
+
+	// Canyon - draw a large Canyon
+	t_largeCanyon = [];
+	var largeCanyonX = 1000;
+	for(var i = 0; i < 10; i++)
+	{
+		t_largeCanyon.push(largeCanyonX);
+		largeCanyonX += random(400, 800);
+	}
+
 	//Collectables - place one at each step position and random ground positions
 	t_collectable = [];
 	
@@ -194,11 +214,12 @@ function draw()
 	rect(0, floorPos_y, width, 20);
 
 	//LIVES PANEL (fixed on screen)
-	livesPanel = {x_pos: 20, y_pos: 40, width: 150, height: 50};
-	fill(0);
+	livesPanel = {x_pos: 10, y_pos: 20, width: 100, height: 30};
+	fill(0, 0, 0, 150);
 	rect(livesPanel.x_pos, livesPanel.y_pos, livesPanel.width, livesPanel.height);
 	fill(255);
-	text("Lives: " + gameCharLives, livesPanel.x_pos + 50, livesPanel.y_pos + 30);
+	textSize(10);
+	text("Lives: " + gameCharLives, livesPanel.x_pos + 25, livesPanel.y_pos + 20);
 
 	//SCROLLING
 	push();
@@ -225,13 +246,24 @@ function draw()
 	//BAMBOO TREE'S
 	drawTrees();
 
-	// RECURSIVE CLOUD FLOATING STEPS
+	// FLOATING STEPS
 	drawFloatingSteps();
-	// drawFloatingSteps(width/2, height/2, 100);
 
 	//CANYON
 	drawCanyon(t_canyon);
 	isTooCloseToCanyon();
+	drawLargeCanyon(t_largeCanyon);
+
+	//Draw Platforms
+	// for(var i = 0; i < platforms.length; i++) {
+	// 	platforms[i].draw();
+	// 	if(gameChar_world_x > platforms[i].x && gameChar_world_x < platforms[i].x + platforms[i].length && 
+	// 		gameChar_y >= platforms[i].y && gameChar_y <= platforms[i].y + 20) {
+	// 		onStep = true;
+	// 		gameChar_y = platforms[i].y;
+	// 	}
+	// }
+
 
 	// Make character fall if plummeting
 	if(isPlummeting == true)
@@ -278,6 +310,7 @@ function draw()
 		gameChar_x = 0;
 		gameChar_y = 0;
 	}
+
 	//draw score count (fixed on screen)
 	fill(255);
 	noStroke();
@@ -413,12 +446,12 @@ function drawClouds(){
 function drawFloatingSteps(){
     for(var i = 0; i < stepsArray.length; i++){
         noStroke();
-        fill(255, 250, 250, 100);
+        fill(255, 250, 250, 180);
         ellipse(stepsArray[i].x_pos, stepsArray[i].y_pos, stepsArray[i].width, stepsArray[i].height);
 		ellipse(stepsArray[i].x_pos + 10, stepsArray[i].y_pos, stepsArray[i].width, stepsArray[i].height);
 		ellipse(stepsArray[i].x_pos + 20, stepsArray[i].y_pos + 10, stepsArray[i].width, stepsArray[i].height);
 		ellipse(stepsArray[i].x_pos + 30, stepsArray[i].y_pos + 5, stepsArray[i].width, stepsArray[i].height);
-
+		ellipse(stepsArray[i].x_pos + 40, stepsArray[i].y_pos, stepsArray[i].width, stepsArray[i].height);
     }
 }
 
@@ -499,47 +532,20 @@ function drawCollectable(t_collectable){
 		{
 			noStroke();
 			fill(0);
-			rect(//samurai sword black handle
-				t_collectable[i].x_pos,
-				t_collectable[i].y_pos,
-				t_collectable[i].size + 3,
-				t_collectable[i].size + 15
-			)
+			rect(t_collectable[i].x_pos, t_collectable[i].y_pos, t_collectable[i].size + 3, t_collectable[i].size + 15) //samurai sword black handle 
 			//samurai sword blade
 			fill(211, 211, 211);
-			rect(
-				t_collectable[i].x_pos,
-				t_collectable[i].y_pos - 30,
-				4,
-				30
-			)
+			rect(t_collectable[i].x_pos, t_collectable[i].y_pos - 30, 4, 30)
 			//samurai sword golden tsuba/guard
 			fill(218, 165, 32);
-			rect(
-				t_collectable[i].x_pos - 6,
-				t_collectable[i].y_pos,
-				t_collectable[i].size + 14,
-				t_collectable[i].size + 1
-			)
+			rect(t_collectable[i].x_pos - 6, t_collectable[i].y_pos, t_collectable[i].size + 14, t_collectable[i].size + 1)
 			//samurai sword edge
 			fill(211, 211, 211);
-			triangle(
-				t_collectable[i].x_pos,
-				t_collectable[i].y_pos - 24,
-				t_collectable[i].x_pos + 4,
-				t_collectable[i].y_pos - 24,
-				t_collectable[i].x_pos + 4,
-				t_collectable[i].y_pos - 49
-			)
+			triangle(t_collectable[i].x_pos, t_collectable[i].y_pos - 24, t_collectable[i].x_pos + 4, t_collectable[i].y_pos - 24, t_collectable[i].x_pos + 4, t_collectable[i].y_pos - 49)
 			//samurai sword detail/edge pattern
 			stroke(128, 128, 128);
 			strokeWeight(0.1);
-			line(
-				t_collectable[i].x_pos + 1.5,
-				t_collectable[i].y_pos - 25,
-				t_collectable[i].x_pos + 1.5,
-				t_collectable[i].y_pos - 5
-			)
+			line(t_collectable[i].x_pos + 1.5, t_collectable[i].y_pos - 25, t_collectable[i].x_pos + 1.5, t_collectable[i].y_pos - 5)
 		}
 	}
 }
@@ -548,7 +554,7 @@ function checkCollectable(t_collectable)
 {
     for(var i = 0; i < t_collectable.length; i++) 
     {
-        if(!t_collectable[i].isFound && dist(gameChar_x, gameChar_y, t_collectable[i].x_pos, t_collectable[i].y_pos) <= 30)
+        if(!t_collectable[i].isFound && dist(gameChar_x, gameChar_y, t_collectable[i].x_pos, t_collectable[i].y_pos) <= 40)
         {
             t_collectable[i].isFound = true;
             game_score += 5;
@@ -572,6 +578,27 @@ function drawCanyon(t_canyon){
 		{
 			isPlummeting = true;
 			break;
+		}
+	}
+}
+
+function drawLargeCanyon(t_largeCanyon){
+	for(var i = 0; i < t_largeCanyon.length; i++)
+	{
+		if(!isTooCloseToCanyon(t_largeCanyon[i])){
+			noStroke();
+			fill(154,180,180);
+			rect(
+				t_largeCanyon[i], 
+				canyon.y_pos, 
+				canyon.width + 200, 
+				canyon.height
+			);
+			if(gameChar_x > t_largeCanyon[i] && gameChar_x < t_largeCanyon[i] + canyon.width && gameChar_y >= floorPos_y)
+			{
+				isPlummeting = true;
+				break;
+			}
 		}
 	}
 }
@@ -623,6 +650,109 @@ function checkFlagPole(){
     console.log(d);
 }
 
+// function enemies(x, y, range) {
+	
+// 		this.x = x;
+// 		this.y = y;
+// 		this.range = range;
+// 		this.currentX = x;
+// 		this.increment = 2; 
+// 		this.update = function() {
+// 			this.currentX += this.increment;
+// 			if(this.currentX > this.x + this.range || this.currentX < this.x - this.range) {
+// 				this.increment *= -1; // Reverse direction
+// 			}
+// 		}
+// 		this.draw = function() {
+// 			noStroke();
+// 			fill(255, 0, 0);
+// 			ellipse(this.currentX - cameraPosX, this.y, 20, 20); // Draw enemy as a red circle
+// 		}
+// 		this.isColliding = function(gameChar_x, gameChar_y) {
+// 			var d = dist(this.currentX - cameraPosX, this.y, gameChar_x, gameChar_y);
+// 			if(d < 20) { // Collision radius
+// 				return true;
+// 			} else {
+// 				return false;
+// 			}
+// 		}
+// 		this.reset = function() {
+// 			this.currentX = this.x; // Reset to initial position
+// 			this.increment = 2; // Reset increment
+// 		}
+	
+// }
+
+function Enemy(x, y, range) {
+	
+		this.x = x;
+		this.y = y;
+		this.range = range;
+		this.currentX = x;
+		this.increment = 2; 
+		this.update = function() {
+			if(this.currentX >= this.x + this.range) {
+				this.increment = -1; // Reverse direction
+			}
+			else if(this.currentX < this.x - this.range) {
+				this.increment = 1; // Reverse direction
+			}
+		}
+		this.draw = function() {
+			this.update(); // Update position before drawing
+			noStroke();
+			fill(255, 0, 0);
+			ellipse(this.currentX - cameraPosX, this.y, 20, 20); // Draw enemy as a red circle
+		}
+		this.checkCollision = function(gameChar_x, gameChar_y) {
+			var d = dist(this.currentX - cameraPosX, this.y, gameChar_x, gameChar_y);
+			if(d < 20) { // Collision radius
+				return true;
+			} else {
+				return false;
+			}
+		}
+		this.reset = function() {
+			this.currentX = this.x; // Reset to initial position
+			this.increment = 2; // Reset increment
+		}
+		this.move = function() {
+			this.currentX += this.increment;
+			if(this.currentX > this.x + this.range || this.currentX < this.x - this.range) {
+				this.increment *= -1; // Reverse direction
+			}
+		}
+		this.isColliding = function(gameChar_x, gameChar_y) {
+			var d = dist(this.currentX - cameraPosX, this.y, gameChar_x, gameChar_y);
+			if(d < 20) { // Collision radius
+				return true;
+			} else {
+				return false;
+			}
+		}
+}
+// function createPlatform(x, y, width, length) {
+
+// 	var p = {
+// 		x: x,
+// 		y: y,
+// 		length: length,
+// 		draw: function() {
+// 			noStroke();
+// 			fill(150, 75, 0); // Brown color for the platform
+// 			rect(this.x - cameraPosX, this.y, this.length, 20);
+// 		},
+// 		isColliding: function(gameChar_x, gameChar_y) {
+// 			if(gameChar_x > this.x - cameraPosX && gameChar_x < this.x - cameraPosX + this.length &&
+// 			   gameChar_y >= this.y && gameChar_y <= this.y + 20) {
+// 				return true;
+// 			} else {
+// 				return false;
+// 			}
+// 		}
+// 	}
+// 	return p;
+// }
 
 function drawGameChar(){
 	if(isLeft && isJumping)
