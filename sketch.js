@@ -148,14 +148,14 @@ function setup()
 	canyon = {x_pos: 400, y_pos: 432, width: 90, height: 200};
 	
 
-	// Canyon - draw a large Canyon
-	t_largeCanyon = [];
-	var largeCanyonX = 1000;
-	for(var i = 0; i < 10; i++)
-	{
-		t_largeCanyon.push(largeCanyonX);
-		largeCanyonX += random(400, 800);
-	}
+	// // Canyon - draw a large Canyon
+	// t_largeCanyon = [];
+	// var largeCanyonX = 1000;
+	// for(var i = 0; i < 10; i++)
+	// {
+	// 	t_largeCanyon.push(largeCanyonX);
+	// 	largeCanyonX += random(400, 800);
+	// }
 
 	//Collectables - place one at each step position and random ground positions
 	t_collectable = [];
@@ -248,7 +248,7 @@ function draw()
 	//CANYON
 	drawCanyon(t_canyon);
 	isTooCloseToCanyon();
-	drawLargeCanyon(t_largeCanyon);
+	// drawLargeCanyon(t_largeCanyon);
 
 
 	// Make character fall if plummeting
@@ -581,26 +581,26 @@ function drawCanyon(t_canyon){
 	}
 }
 
-function drawLargeCanyon(t_largeCanyon){
-	for(var i = 0; i < t_largeCanyon.length; i++)
-	{
-		if(!isTooCloseToCanyon(t_largeCanyon[i])){
-			noStroke();
-			fill(154,180,180);
-			rect(
-				t_largeCanyon[i], 
-				canyon.y_pos, 
-				canyon.width + 200, 
-				canyon.height
-			);
-			if(gameChar_x > t_largeCanyon[i] && gameChar_x < t_largeCanyon[i] + canyon.width && gameChar_y >= floorPos_y)
-			{
-				isPlummeting = true;
-				break;
-			}
-		}
-	}
-}
+// function drawLargeCanyon(t_largeCanyon){
+// 	for(var i = 0; i < t_largeCanyon.length; i++)
+// 	{
+// 		if(!isTooCloseToCanyon(t_largeCanyon[i])){
+// 			noStroke();
+// 			fill(154,180,180);
+// 			rect(
+// 				t_largeCanyon[i], 
+// 				canyon.y_pos, 
+// 				canyon.width + 200, 
+// 				canyon.height
+// 			);
+// 			if(gameChar_x > t_largeCanyon[i] && gameChar_x < t_largeCanyon[i] + canyon.width && gameChar_y >= floorPos_y)
+// 			{
+// 				isPlummeting = true;
+// 				break;
+// 			}
+// 		}
+// 	}
+// }
 
 function isTooCloseToCanyon(x) {
     for(var i = 0; i < t_canyon.length; i++) {
@@ -840,6 +840,30 @@ function drawGameChar(){
 		fill(255);
 		ellipse(gameChar_x, gameChar_y - 48, 17.5, 18);
 
+		//Left eye
+		fill(0);
+		ellipse(gameChar_x - 4, gameChar_y - 49, 5, 6);
+
+		//Right eye
+		fill(0);
+		ellipse(gameChar_x + 4.5, gameChar_y - 49, 5, 6);
+
+		//Left eye pupil
+		stroke(0);	
+		strokeWeight(0.5);
+		fill(255);
+		ellipse(gameChar_x - 4, gameChar_y - 49, 2, 2);
+		ellipse(gameChar_x - 3, gameChar_y - 48, 2, 2);
+
+		//Right eye pupil
+		fill(255);
+		ellipse(gameChar_x + 5, gameChar_y - 49, 2, 2);
+		ellipse(gameChar_x + 6, gameChar_y - 48, 2, 2);
+
+		//mouth
+		fill(255,192,203);
+		ellipse(gameChar_x, gameChar_y - 44, 4, 2);
+
 		//Left Leg
 		fill(0);
 		rect(gameChar_x - 8, gameChar_y - 14, 4, 8);
@@ -899,6 +923,30 @@ function drawGameChar(){
 		//Head
 		fill(255);
 		ellipse(gameChar_x, gameChar_y - 48, 17.5, 18);
+
+		//Left eye
+		fill(0);
+		ellipse(gameChar_x - 4, gameChar_y - 49, 5, 6);
+
+		//Right eye
+		fill(0);
+		ellipse(gameChar_x + 4.5, gameChar_y - 49, 5, 6);
+
+		//Left eye pupil
+		stroke(0);	
+		strokeWeight(0.5);
+		fill(255);
+		ellipse(gameChar_x - 4, gameChar_y - 49, 2, 2);
+		ellipse(gameChar_x - 3, gameChar_y - 48, 2, 2);
+
+		//Right eye pupil
+		fill(255);
+		ellipse(gameChar_x + 5, gameChar_y - 49, 2, 2);
+		ellipse(gameChar_x + 6, gameChar_y - 48, 2, 2);
+
+		//mouth
+		fill(255,192,203);
+		ellipse(gameChar_x, gameChar_y - 44, 4, 2);
 		
 		//Left Leg
 		fill(0);
@@ -961,6 +1009,30 @@ function drawGameChar(){
 		fill(255);
 		ellipse(gameChar_x, gameChar_y - 48, 17.5, 18);
 
+		//Left eye
+		fill(0);
+		ellipse(gameChar_x - 4, gameChar_y - 49, 5, 6);
+
+		//Right eye
+		fill(0);
+		ellipse(gameChar_x + 4.5, gameChar_y - 49, 5, 6);
+
+		//Left eye pupil
+		stroke(0);	
+		strokeWeight(0.5);
+		fill(255);
+		ellipse(gameChar_x - 4, gameChar_y - 49, 2, 2);
+		ellipse(gameChar_x - 3, gameChar_y - 48, 2, 2);
+
+		//Right eye pupil
+		fill(255);
+		ellipse(gameChar_x + 5, gameChar_y - 49, 2, 2);
+		ellipse(gameChar_x + 6, gameChar_y - 48, 2, 2);
+
+		//mouth
+		fill(255,192,203);
+		ellipse(gameChar_x, gameChar_y - 44, 4, 2);
+
 		//Left Leg
 		fill(0);
 		rect(gameChar_x - 8, gameChar_y - 14, 4, 12);
@@ -1014,6 +1086,30 @@ function drawGameChar(){
 		//Head
 		fill(255);
 		ellipse(gameChar_x, gameChar_y - 48, 17.5, 18);
+
+		//Left eye
+		fill(0);
+		ellipse(gameChar_x - 4, gameChar_y - 49, 5, 6);
+
+		//Right eye
+		fill(0);
+		ellipse(gameChar_x + 4.5, gameChar_y - 49, 5, 6);
+
+		//Left eye pupil
+		stroke(0);	
+		strokeWeight(0.5);
+		fill(255);
+		ellipse(gameChar_x - 4, gameChar_y - 49, 2, 2);
+		ellipse(gameChar_x - 3, gameChar_y - 48, 2, 2);
+
+		//Right eye pupil
+		fill(255);
+		ellipse(gameChar_x + 5, gameChar_y - 49, 2, 2);
+		ellipse(gameChar_x + 6, gameChar_y - 48, 2, 2);
+
+		//mouth
+		fill(255,192,203);
+		ellipse(gameChar_x, gameChar_y - 44, 4, 2);
 	
 		//Left Leg
 		fill(0);
@@ -1069,6 +1165,30 @@ function drawGameChar(){
 		fill(255);
 		ellipse(gameChar_x, gameChar_y - 48, 18, 18);
 
+		//Left eye
+		fill(0);
+		ellipse(gameChar_x - 4, gameChar_y - 49, 5, 6);
+
+		//Right eye
+		fill(0);
+		ellipse(gameChar_x + 4.5, gameChar_y - 49, 5, 6);
+
+		//Left eye pupil
+		stroke(0);	
+		strokeWeight(0.5);
+		fill(255);
+		ellipse(gameChar_x - 4, gameChar_y - 49, 2, 2);
+		ellipse(gameChar_x - 3, gameChar_y - 48, 2, 2);
+
+		//Right eye pupil
+		fill(255);
+		ellipse(gameChar_x + 5, gameChar_y - 49, 2, 2);
+		ellipse(gameChar_x + 6, gameChar_y - 48, 2, 2);
+
+		//mouth
+		fill(255,192,203);
+		ellipse(gameChar_x, gameChar_y - 44, 4, 2);
+
 		//Left Leg
 		fill(0);
 		rect(gameChar_x - 8, gameChar_y - 14, 4, 8);
@@ -1112,10 +1232,16 @@ function drawGameChar(){
 		//left ear
 		fill(0);
 		ellipse(gameChar_x - 8, gameChar_y - 55, 9, 9);
+			//pink ear lobe
+			fill(255,192,203);
+			ellipse(gameChar_x - 8, gameChar_y - 54, 5, 5);
 
 		//right ear
 		fill(0);
 		ellipse(gameChar_x + 8, gameChar_y - 55, 9, 9);
+			//pink ear lobe
+			fill(255,192,203);
+			ellipse(gameChar_x + 8, gameChar_y - 54, 5, 5);
 
 		//neck
 		fill(0);
@@ -1124,6 +1250,30 @@ function drawGameChar(){
 		//Head
 		fill(255);
 		ellipse(gameChar_x, gameChar_y - 48, 18, 18);
+
+		//Left eye
+		fill(0);
+		ellipse(gameChar_x - 4, gameChar_y - 49, 5, 6);
+
+		//Right eye
+		fill(0);
+		ellipse(gameChar_x + 4.5, gameChar_y - 49, 5, 6);
+
+		//Left eye pupil
+		stroke(0);	
+		strokeWeight(0.5);
+		fill(255);
+		ellipse(gameChar_x - 4, gameChar_y - 49, 2, 2);
+		ellipse(gameChar_x - 3, gameChar_y - 48, 2, 2);
+
+		//Right eye pupil
+		fill(255);
+		ellipse(gameChar_x + 5, gameChar_y - 49, 2, 2);
+		ellipse(gameChar_x + 6, gameChar_y - 48, 2, 2);
+
+		//mouth
+		fill(255,192,203);
+		ellipse(gameChar_x, gameChar_y - 44, 4, 2);
 
 		//Left Leg
 		fill(0);
