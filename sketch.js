@@ -7,7 +7,7 @@ var isPlummeting;
 //ITEM VARIABLES
 var gameChar_x;
 var gameChar_y;
-var gameChar_world_x
+var gameChar_world_x;
 var scrollPos;
 var gameCharLives; 
 var livesPanel;
@@ -922,499 +922,135 @@ function Enemy(x, y, range) {
 		}
 }
 
-function drawGameChar(){
-	if(isLeft && isJumping)
-	{
-	// jumping-left code
-		stroke(0);
-		strokeWeight(1);
-		//left ear
-		fill(0);
-		ellipse(gameChar_x - 8, gameChar_y - 55, 8, 9);
-
-		//right ear
-		fill(0);
-		ellipse(gameChar_x + 8, gameChar_y - 55, 8, 9);
-
-		//neck
-		fill(0);
-		rect(gameChar_x - 2, gameChar_y - 41, 4, 8);
-
-		//Head
-		fill(255);
-		ellipse(gameChar_x, gameChar_y - 48, 17.5, 18);
-
-		//Left eye
-		fill(0);
-		ellipse(gameChar_x - 4, gameChar_y - 49, 5, 6);
-
-		//Right eye
-		fill(0);
-		ellipse(gameChar_x + 4.5, gameChar_y - 49, 5, 6);
-
-		//Left eye pupil
-		stroke(0);	
-		strokeWeight(0.5);
-		fill(255);
-		ellipse(gameChar_x - 4, gameChar_y - 49, 2, 2);
-		ellipse(gameChar_x - 3, gameChar_y - 48, 2, 2);
-
-		//Right eye pupil
-		fill(255);
-		ellipse(gameChar_x + 5, gameChar_y - 49, 2, 2);
-		ellipse(gameChar_x + 6, gameChar_y - 48, 2, 2);
-
-		//mouth
+// Helper functions for character drawing
+function drawCharacterHead(x, y, showEarLobes) {
+	stroke(0);
+	strokeWeight(1);
+	
+	// Ears
+	fill(0);
+	ellipse(x - 8, y - 55, 8, 9);
+	ellipse(x + 8, y - 55, 8, 9);
+	
+	if(showEarLobes) {
 		fill(255,192,203);
-		ellipse(gameChar_x, gameChar_y - 44, 4, 2);
-
-		//Left Leg
-		fill(0);
-		rect(gameChar_x - 8, gameChar_y - 14, 4, 8);
-			//Left Leg Bent
-			fill(0);
-			rect(gameChar_x - 8, gameChar_y -6, 8, 3);
-				//Left Foot
-				fill(0);
-				ellipse(gameChar_x , gameChar_y -2, 4, 8);
-
-		//Right Leg
-		fill(0);
-		rect(gameChar_x + 4, gameChar_y - 14, 4, 8);
-			//Right Leg Bent
-			fill(0);
-			rect(gameChar_x + 4, gameChar_y -6, 8, 3);
-				//Right Foot
-				fill(0);
-				ellipse(gameChar_x + 12, gameChar_y -2, 4, 8);
-
-		//body
-		fill(255);
-		ellipse(gameChar_x, gameChar_y - 24.25, 24, 28);
-				//body black chest
-				fill(0);
-				ellipse(gameChar_x, gameChar_y - 30, 22, 16);
-
-		//Left Arm
-		fill(0);
-		ellipse(gameChar_x - 12, gameChar_y - 27, 4, 8);
-				//Left Arm Bent
-				fill(0);
-				ellipse(gameChar_x - 15, gameChar_y - 23, 9, 4);
-
-		//Right Arm 
-		fill(0);
-		ellipse(gameChar_x + 12, gameChar_y - 25, 4, 14);
-
+		ellipse(x - 8, y - 54, 5, 5);
+		ellipse(x + 8, y - 54, 5, 5);
 	}
-	else if(isRight && isJumping)
-	{
-	// jumping-right code
-		stroke(0);
-		strokeWeight(1);	
-		//left ear
-		fill(0); 
-		ellipse(gameChar_x - 8, gameChar_y - 55, 8, 9);
+	// Neck
+	fill(0);
+	rect(x - 2, y - 41, 4, 8);
+	
+	// Head
+	fill(255);
+	ellipse(x, y - 48, 17.5, 18);
+	
+	// Eyes
+	fill(0);
+	ellipse(x - 4, y - 49, 5, 6);
+	ellipse(x + 4.5, y - 49, 5, 6);
+	
+	// Eye pupils
+	stroke(0);
+	strokeWeight(0.5);
+	fill(255);
+	ellipse(x - 4, y - 49, 2, 2);
+	ellipse(x - 3, y - 48, 2, 2);
+	ellipse(x + 5, y - 49, 2, 2);
+	ellipse(x + 6, y - 48, 2, 2);
+	
+	// Mouth
+	fill(255,192,203);
+	ellipse(x, y - 44, 4, 2);
+}
 
-		//right ear
-		fill(0);
-		ellipse(gameChar_x + 8, gameChar_y - 55, 8, 9);
+function drawCharacterBody(x, y) {
+	fill(255);
+	ellipse(x, y - 24.25, 24, 28);
+	fill(0);
+	ellipse(x, y - 30, 22, 16);
+}
 
-		//neck
-		fill(0);
-		rect(gameChar_x - 2, gameChar_y - 41, 4, 8);
-
-		//Head
-		fill(255);
-		ellipse(gameChar_x, gameChar_y - 48, 17.5, 18);
-
-		//Left eye
-		fill(0);
-		ellipse(gameChar_x - 4, gameChar_y - 49, 5, 6);
-
-		//Right eye
-		fill(0);
-		ellipse(gameChar_x + 4.5, gameChar_y - 49, 5, 6);
-
-		//Left eye pupil
-		stroke(0);	
-		strokeWeight(0.5);
-		fill(255);
-		ellipse(gameChar_x - 4, gameChar_y - 49, 2, 2);
-		ellipse(gameChar_x - 3, gameChar_y - 48, 2, 2);
-
-		//Right eye pupil
-		fill(255);
-		ellipse(gameChar_x + 5, gameChar_y - 49, 2, 2);
-		ellipse(gameChar_x + 6, gameChar_y - 48, 2, 2);
-
-		//mouth
-		fill(255,192,203);
-		ellipse(gameChar_x, gameChar_y - 44, 4, 2);
+function drawCharacterLegs(x, y, state) {
+	fill(0);
+	if(state === 'jumping') {
+		// Bent legs for jumping
+		rect(x - 8, y - 14, 4, 8);
+		rect(x - 8, y - 6, 8, 3);
+		ellipse(x, y - 2, 4, 8);
 		
-		//Left Leg
-		fill(0);
-		rect(gameChar_x - 8, gameChar_y - 14, 4, 8);
-			//Left Leg Bent
-			fill(0);
-			rect(gameChar_x - 12, gameChar_y -6, 8, 3);
-				//Left Foot
-				fill(0);
-				ellipse(gameChar_x -12, gameChar_y -2, 4, 8);
-
-		//Right Leg
-		fill(0);
-		rect(gameChar_x + 4, gameChar_y - 14, 4, 8);
-			//Right Leg Bent
-			fill(0);
-			rect(gameChar_x, gameChar_y -6, 8, 3);
-				//Right Foot
-				fill(0);
-				ellipse(gameChar_x, gameChar_y -2, 4, 8);
-
-		//body
-		fill(255);
-		ellipse(gameChar_x, gameChar_y - 24.25, 24, 28);
-				//body black chest
-				fill(0);
-				ellipse(gameChar_x, gameChar_y - 30, 22, 16);
-
-		//Left Arm
-		fill(0);
-		ellipse(gameChar_x - 12, gameChar_y - 25, 4, 14);
-
-		//Right Arm 
-		fill(0);
-		ellipse(gameChar_x + 12, gameChar_y - 27, 4, 8);
-			//Right Arm Bent
-			fill(0);
-			ellipse(gameChar_x + 15, gameChar_y - 23, 9, 4);
-
+		rect(x + 4, y - 14, 4, 8);
+		rect(x + 4, y - 6, 8, 3);
+		ellipse(x + 12, y - 2, 4, 8);
+	} else if(state === 'walkingLeft') {
+		rect(x - 8, y - 14, 4, 12);
+		ellipse(x - 8, y - 2, 8, 4);
+		rect(x + 4, y - 14, 4, 12);
+		ellipse(x + 4, y - 2, 8, 4);
+	} else if(state === 'walkingRight') {
+		rect(x - 8, y - 14, 4, 12);
+		ellipse(x - 4, y - 2, 8, 4);
+		rect(x + 4, y - 14, 4, 12);
+		ellipse(x + 8, y - 2, 8, 4);
+	} else {
+		// Standing
+		rect(x - 8, y - 14, 4, 12);
+		ellipse(x - 8, y - 2, 8, 4);
+		rect(x + 4, y - 14, 4, 12);
+		ellipse(x + 8, y - 2, 8, 4);
 	}
-	else if(isLeft)
-	{
-	// walking left code
-		stroke(0);
-		strokeWeight(1);
+}
 
-		//left ear
-		fill(0);
-		ellipse(gameChar_x - 8, gameChar_y - 55, 8, 9);
-
-		//right ear
-		fill(0);
-		ellipse(gameChar_x + 8, gameChar_y - 55, 8, 9);
-
-		//neck
-		fill(0);
-		rect(gameChar_x - 2, gameChar_y - 41, 4, 8);
-
-		//Head
-		fill(255);
-		ellipse(gameChar_x, gameChar_y - 48, 17.5, 18);
-
-		//Left eye
-		fill(0);
-		ellipse(gameChar_x - 4, gameChar_y - 49, 5, 6);
-
-		//Right eye
-		fill(0);
-		ellipse(gameChar_x + 4.5, gameChar_y - 49, 5, 6);
-
-		//Left eye pupil
-		stroke(0);	
-		strokeWeight(0.5);
-		fill(255);
-		ellipse(gameChar_x - 4, gameChar_y - 49, 2, 2);
-		ellipse(gameChar_x - 3, gameChar_y - 48, 2, 2);
-
-		//Right eye pupil
-		fill(255);
-		ellipse(gameChar_x + 5, gameChar_y - 49, 2, 2);
-		ellipse(gameChar_x + 6, gameChar_y - 48, 2, 2);
-
-		//mouth
-		fill(255,192,203);
-		ellipse(gameChar_x, gameChar_y - 44, 4, 2);
-
-		//Left Leg
-		fill(0);
-		rect(gameChar_x - 8, gameChar_y - 14, 4, 12);
-			//Left Foot
-			fill(0);
-			ellipse(gameChar_x - 8, gameChar_y -2, 8, 4);
-
-		//Right Leg
-		fill(0);
-		rect(gameChar_x + 4, gameChar_y - 14, 4, 12);
-			//Right Foot 
-			fill(0);
-			ellipse(gameChar_x + 4, gameChar_y -2, 8, 4);
-
-		//body
-		fill(255);
-		ellipse(gameChar_x, gameChar_y - 24.25, 24, 28);
-				//body black chest
-				fill(0);
-				ellipse(gameChar_x, gameChar_y - 30, 22, 16);
-
-		//Left Arm
-		fill(0);
-		ellipse(gameChar_x - 12, gameChar_y - 27, 4, 8);
-				//Left Arm Bent
-				fill(0);
-				ellipse(gameChar_x - 15, gameChar_y - 23, 9, 4);
-
-		//Right Arm 
-		fill(0);
-		ellipse(gameChar_x + 12, gameChar_y - 25, 4, 14);
-
+function drawCharacterArms(x, y, state) {
+	fill(0);
+	if(state === 'jumpingLeft') {
+		ellipse(x - 12, y - 27, 4, 8);
+		ellipse(x - 15, y - 23, 9, 4);
+		ellipse(x + 12, y - 25, 4, 14);
+	} else if(state === 'jumpingRight') {
+		ellipse(x - 12, y - 25, 4, 14);
+		ellipse(x + 12, y - 27, 4, 8);
+		ellipse(x + 15, y - 23, 9, 4);
+	} else if(state === 'walkingLeft') {
+		ellipse(x - 12, y - 27, 4, 8);
+		ellipse(x - 15, y - 23, 9, 4);
+		ellipse(x + 12, y - 25, 4, 14);
+	} else if(state === 'walkingRight') {
+		ellipse(x - 12, y - 25, 4, 14);
+		ellipse(x + 12, y - 27, 4, 8);
+		ellipse(x + 15, y - 23, 9, 4);
+	} else if(state === 'jumping') {
+		ellipse(x - 10, y - 37, 4, 14);
+		ellipse(x + 10, y - 37, 4, 14);
+	} else {
+		// Standing
+		ellipse(x - 14, y - 32, 10, 4);
+		ellipse(x - 18, y - 36, 4, 10);
+		ellipse(x + 14, y - 32, 10, 4);
+		ellipse(x + 18, y - 36, 4, 10);
 	}
-	else if(isRight)
-	{
-	// walking right code
-		stroke(0);
-		strokeWeight(1);
-		//left ear
-		fill(0);
-		ellipse(gameChar_x - 8, gameChar_y - 55, 8, 9);
+}
+
+function drawGameChar() {
+	let state = 'standing';
+	let showEarLobes = false;
 	
-		//right ear
-		fill(0);
-		ellipse(gameChar_x + 8, gameChar_y - 55, 8, 9);
-	
-		//neck
-		fill(0);
-		rect(gameChar_x - 2, gameChar_y - 41, 4, 8);
-
-		//Head
-		fill(255);
-		ellipse(gameChar_x, gameChar_y - 48, 17.5, 18);
-
-		//Left eye
-		fill(0);
-		ellipse(gameChar_x - 4, gameChar_y - 49, 5, 6);
-
-		//Right eye
-		fill(0);
-		ellipse(gameChar_x + 4.5, gameChar_y - 49, 5, 6);
-
-		//Left eye pupil
-		stroke(0);	
-		strokeWeight(0.5);
-		fill(255);
-		ellipse(gameChar_x - 4, gameChar_y - 49, 2, 2);
-		ellipse(gameChar_x - 3, gameChar_y - 48, 2, 2);
-
-		//Right eye pupil
-		fill(255);
-		ellipse(gameChar_x + 5, gameChar_y - 49, 2, 2);
-		ellipse(gameChar_x + 6, gameChar_y - 48, 2, 2);
-
-		//mouth
-		fill(255,192,203);
-		ellipse(gameChar_x, gameChar_y - 44, 4, 2);
-	
-		//Left Leg
-		fill(0);
-		rect(gameChar_x - 8, gameChar_y - 14, 4, 12);
-			//Left Foot
-			fill(0);
-			ellipse(gameChar_x - 4, gameChar_y -2, 8, 4);
-	
-		//Right Leg
-		fill(0);
-		rect(gameChar_x + 4, gameChar_y - 14, 4, 12);
-			//Right Foot 
-			fill(0);
-			ellipse(gameChar_x + 8, gameChar_y -2, 8, 4);
-
-		//body
-		fill(255);
-		ellipse(gameChar_x, gameChar_y - 24.25, 24, 28);
-				//body black chest
-				fill(0);
-				ellipse(gameChar_x, gameChar_y - 30, 22, 16);
-
-		//Left Arm
-		fill(0);
-		ellipse(gameChar_x - 12, gameChar_y - 25, 4, 14);
-	
-		//Right Arm 
-		fill(0);
-		ellipse(gameChar_x + 12, gameChar_y - 27, 4, 8);
-			//Right Arm Bent
-			fill(0);
-			ellipse(gameChar_x + 15, gameChar_y - 23, 9, 4);
-
+	if(isLeft && isJumping) {
+		state = 'jumpingLeft';
+	} else if(isRight && isJumping) {
+		state = 'jumpingRight';
+	} else if(isLeft) {
+		state = 'walkingLeft';
+	} else if(isRight) {
+		state = 'walkingRight';
+	} else if(isJumping || isPlummeting) {
+		state = 'jumping';
+	} else {
+		state = 'standing';
+		showEarLobes = true;
 	}
-	else if(isJumping || isPlummeting)
-	{
-	//jumping facing forwards code
-		//left ear
-		stroke(0);	
-		strokeWeight(1); 
-		fill(0);
-		ellipse(gameChar_x - 8, gameChar_y - 55, 9, 9);
-
-		//right ear
-		fill(0);
-		ellipse(gameChar_x + 8, gameChar_y - 55, 9, 9);
-
-		//neck
-		fill(0);
-		rect(gameChar_x - 2, gameChar_y - 41, 4, 8);
-
-		//Head
-		fill(255);
-		ellipse(gameChar_x, gameChar_y - 48, 18, 18);
-
-		//Left eye
-		fill(0);
-		ellipse(gameChar_x - 4, gameChar_y - 49, 5, 6);
-
-		//Right eye
-		fill(0);
-		ellipse(gameChar_x + 4.5, gameChar_y - 49, 5, 6);
-
-		//Left eye pupil
-		stroke(0);	
-		strokeWeight(0.5);
-		fill(255);
-		ellipse(gameChar_x - 4, gameChar_y - 49, 2, 2);
-		ellipse(gameChar_x - 3, gameChar_y - 48, 2, 2);
-
-		//Right eye pupil
-		fill(255);
-		ellipse(gameChar_x + 5, gameChar_y - 49, 2, 2);
-		ellipse(gameChar_x + 6, gameChar_y - 48, 2, 2);
-
-		//mouth
-		fill(255,192,203);
-		ellipse(gameChar_x, gameChar_y - 44, 4, 2);
-
-		//Left Leg
-		fill(0);
-		rect(gameChar_x - 8, gameChar_y - 14, 4, 8);
-			//Left Leg Bent
-			fill(0);
-			rect(gameChar_x - 8, gameChar_y -6, 8, 3);
-				//Left Foot
-				fill(0);
-				ellipse(gameChar_x , gameChar_y -2, 4, 8);
-
-		//Right Leg
-		fill(0);
-		rect(gameChar_x + 4, gameChar_y - 14, 4, 8);
-			//Right Leg Bent
-			fill(0);
-			rect(gameChar_x + 4, gameChar_y -6, 8, 3);
-				//Right Foot
-				fill(0);
-				ellipse(gameChar_x + 12, gameChar_y -2, 4, 8);
-		//body
-		fill(255);
-		ellipse(gameChar_x, gameChar_y - 24.25, 24, 28);
-				//body black chest
-				fill(0);
-				ellipse(gameChar_x, gameChar_y - 30, 22, 16);
-
-		//Left Arm
-		fill(0);
-		ellipse(gameChar_x - 10, gameChar_y - 37, 4, 14);
-
-		//Right Arm 
-		fill(0);
-		ellipse(gameChar_x + 10, gameChar_y - 37, 4, 14);
-
-	}
-	else
-	{
-	//standing front facing code
-		stroke(0);
-		strokeWeight(1);
-		//left ear
-		fill(0);
-		ellipse(gameChar_x - 8, gameChar_y - 55, 9, 9);
-			//pink ear lobe
-			fill(255,192,203);
-			ellipse(gameChar_x - 8, gameChar_y - 54, 5, 5);
-
-		//right ear
-		fill(0);
-		ellipse(gameChar_x + 8, gameChar_y - 55, 9, 9);
-			//pink ear lobe
-			fill(255,192,203);
-			ellipse(gameChar_x + 8, gameChar_y - 54, 5, 5);
-
-		//neck
-		fill(0);
-		rect(gameChar_x - 2, gameChar_y - 41, 4, 8);
-
-		//Head
-		fill(255);
-		ellipse(gameChar_x, gameChar_y - 48, 18, 18);
-
-		//Left eye
-		fill(0);
-		ellipse(gameChar_x - 4, gameChar_y - 49, 5, 6);
-
-		//Right eye
-		fill(0);
-		ellipse(gameChar_x + 4.5, gameChar_y - 49, 5, 6);
-
-		//Left eye pupil
-		stroke(0);	
-		strokeWeight(0.5);
-		fill(255);
-		ellipse(gameChar_x - 4, gameChar_y - 49, 2, 2);
-		ellipse(gameChar_x - 3, gameChar_y - 48, 2, 2);
-
-		//Right eye pupil
-		fill(255);
-		ellipse(gameChar_x + 5, gameChar_y - 49, 2, 2);
-		ellipse(gameChar_x + 6, gameChar_y - 48, 2, 2);
-
-		//mouth
-		fill(255,192,203);
-		ellipse(gameChar_x, gameChar_y - 44, 4, 2);
-
-		//Left Leg
-		fill(0);
-		rect(gameChar_x - 8, gameChar_y - 14, 4, 12);
-			//Left Foot
-			fill(0);
-			ellipse(gameChar_x - 8, gameChar_y -2, 8, 4);
-
-		//Right Leg
-		fill(0);
-		rect(gameChar_x + 4, gameChar_y - 14, 4, 12);
-			//Right Foot 
-			fill(0);
-			ellipse(gameChar_x + 8, gameChar_y -2, 8, 4);
-
-		//body
-		fill(255);
-		ellipse(gameChar_x, gameChar_y - 24.25, 24, 28);
-			//body black chest
-			fill(0);
-			ellipse(gameChar_x, gameChar_y - 30, 22, 16);
-
-		//Left Arm
-		fill(0);
-		ellipse(gameChar_x - 14, gameChar_y - 32, 10, 4);
-				//Left Arm Bent
-				fill(0);
-				ellipse(gameChar_x - 18, gameChar_y - 36, 4, 10);
-		
-		//Right Arm 
-		fill(0);
-		ellipse(gameChar_x + 14, gameChar_y - 32, 10, 4);
-				//Right Arm Bent
-				fill(0);
-				ellipse(gameChar_x + 18, gameChar_y - 36, 4, 10);
-	}
-	
-	pop();
-
+	drawCharacterHead(gameChar_x, gameChar_y, showEarLobes);
+	drawCharacterBody(gameChar_x, gameChar_y);
+	drawCharacterLegs(gameChar_x, gameChar_y, state === 'jumping' || state === 'jumpingLeft' || state === 'jumpingRight' ? 'jumping' : state);
+	drawCharacterArms(gameChar_x, gameChar_y, state);
 }
