@@ -14,6 +14,7 @@ var livesPanel;
 var game_score;
 var floorPos_y;
 var canyon;
+var sushiCollectable;
 var t_collectable;
 var collectableY;
 var mountain;
@@ -44,12 +45,13 @@ var jumpSound;
 function preload()
 {
     soundFormats('mp3','wav');
-    
     //load your sounds here
     jumpSound = loadSound('assets/snowjump.wav');
-    // jumpSound.setVolume(0.1);
+    jumpSound.setVolume(0.8);
 	samuraiSound = loadSound('assets/samurai.wav');
 	samuraiSound.setVolume(0.8);
+	coinSound = loadSound('assets/coin.wav');
+	coinSound.setVolume(0.8);
 	deathSound = loadSound('assets/lifetaken.wav');
 	deathSound.setVolume(0.8);
 }
@@ -64,8 +66,8 @@ function setup()
 	//Clouds
 	cloud = {x_pos: 100, y_pos: -30, size: 40};
 	cloudOffset = 0;
-
 	onStep = false;
+
 	//Game Character
 	cameraPosX = 0;
 	floorPos_y = height * 3/4;
@@ -73,8 +75,13 @@ function setup()
 	gameChar_y = floorPos_y;
 	gameCharLives = 5; //number of lives
 	game_score = 0;
+	collisionTimer = 0;
+	gameChar_world_x = gameChar_x;
+
+	//Enemies
 	enemies = []; 
 	enemies.push(new Enemy(500, floorPos_y, 100));
+
 
 	//Game Character Movement
 	isLeft = false;
@@ -84,10 +91,6 @@ function setup()
 
 	//Flagpole
 	flagpole = {isReached: false, x_pos: 3000};
-	//Update the real position of gameChar for collision detection
-	//variable to store the real position of the gameChar in the game
-	// world. needed for collision detection
-	gameChar_world_x = gameChar_x;
 	scrollPos = 0; //Variable to controll help with collision
 
 	//snows 
@@ -113,20 +116,6 @@ function setup()
 		bambooX += random(100, 300);
 	}
 
-	//Floating Steps - draw multiple Steps
-	stepsArray = [];
-	var stepX = 290; // Starting x position
-	var stepY = 300; // Starting y position
-	for(var i = 0; i < 3; i++){
-		stepsArray.push({
-			x_pos: stepX + (i * 185), // 185px apart on x-axis - for difficulty/challenge
-			y_pos: stepY - (i * 50), // 30px higher each step
-			width: 50,
-			height: 20,
-		});
-
-	}
-
 	//Mountains - draw multiple Mountains of random amount across the x-axis
 	mountain = {x_pos: 600, y_pos: height * 1.13/4, size: 50};
 	var mountainX = -400;
@@ -147,6 +136,24 @@ function setup()
 	}
 	canyon = {x_pos: 400, y_pos: 432, width: 90, height: 200};
 
+	// Canyon - draw a large Canyon at safe positions
+	t_largeCanyon = [1500, 2600]; // Fixed positions away from small canyons
+
+	//Floating Steps - position over large canyons
+	stepsArray = [];
+	for(var i = 0; i < t_largeCanyon.length; i++){
+		var stepX = t_largeCanyon[i] + 20; 
+		var stepY = 300;
+		for(var j = 0; j < 3; j++){
+			stepsArray.push({
+				x_pos: stepX + (j * 180),
+				y_pos: stepY - (j * 50),
+				width: 50,
+				height: 20,
+			});
+		}
+	}
+
 	//Collectables - place one at each step position and random ground positions
 	t_collectable = [];
 	
@@ -160,6 +167,16 @@ function setup()
 		});
 	}
 	
+	sushiCollectable = [];
+	//Sushi collectables placed above canyons
+	for(var i = 0; i < t_canyon.length; i++){
+		sushiCollectable.push({
+			x_pos: t_canyon[i] + 45,
+			y_pos: canyon.y_pos - 110,
+			size: 1,
+			isFound: false
+		});
+	}
 	// Ground collectables
 	var collectableX = 550;
 	for(var i = 0; i < 20; i++){
@@ -248,14 +265,10 @@ function draw()
 	//BAMBOO TREE'S
 	drawTrees();
 
-	// FLOATING STEPS
-	drawFloatingSteps();
-
 	//CANYON
 	drawCanyon(t_canyon);
-	// drawCanyonWater(t_canyon);
 	isTooCloseToCanyon();
-
+	drawLargeCanyon(t_largeCanyon);
 
 	// Make character fall if plummeting
 	if(isPlummeting == true)
@@ -281,6 +294,7 @@ function draw()
 	drawCollectable(t_collectable);
 	checkCollectable(t_collectable);
 
+
 	//GAMECHARACTER
 	drawGameChar();
 	//Game Character in the center of the screen/scroling view
@@ -295,16 +309,17 @@ function draw()
 	//ENEMIES
 	for(var i = 0; i < enemies.length; i++){
 		enemies[i].draw();
-		if(enemies[i].checkCollision(gameChar_x, gameChar_y)){
-			isPlummeting = true;
+		if(enemies[i].checkCollision(gameChar_x, gameChar_y) && millis() > collisionTimer){
 			gameCharLives -= 1;
 			game_score -= 2;
 			deathSound.play();
-			enemies[i].reset(); // Reset enemy position after collision
+			gameChar_x = width/8;
+			gameChar_y = floorPos_y;
+			collisionTimer = millis() + 2000; //to prevent multiple collisions
 		}
 	}
 	
-	//GAMEOVER MESSAGE if lives < 1
+	//"GAMEOVER" message if lives < 1
 	if(gameCharLives < 1)
 	{
 		fill(0, 0, 0);
@@ -316,7 +331,7 @@ function draw()
 		gameChar_y = 0;
 	}
 	
-	//LIVES PANEL (fixed on screen)
+	//LIVES & SCORE PANEL (fixed on screen)
 	livesPanel = {x_pos: 10, y_pos: 20, width: 100, height: 30};
 	fill(255, 255, 255, 150);
 	rect(livesPanel.x_pos, livesPanel.y_pos, livesPanel.width, livesPanel.height);
@@ -324,8 +339,6 @@ function draw()
 	noStroke();
 	textSize(10);
 	text("LIVES: " + gameCharLives, livesPanel.x_pos + 15, livesPanel.y_pos + 25);
-
-	//Draw score count (fixed on screen)
 	noStroke();
 	text("SCORE: " + game_score, livesPanel.x_pos + 15, livesPanel.y_pos + 12);
 
@@ -563,8 +576,37 @@ function drawCollectable(t_collectable){
 	}
 }
 
+function drawSushiCollectable(sushiCollectable){
+	for(var i = 0; i < sushiCollectable.length; i++)
+	{
+		if(!sushiCollectable[i].isFound)
+		{
+			noStroke();
+			fill(0);
+			ellipse(sushiCollectable[i].x_pos, sushiCollectable[i].y_pos, 24, 20); // seaweed wrap base
+			// sushi rice filling
+			fill(255,245,238); // Off-white for sushi rice
+			ellipse(sushiCollectable[i].x_pos, sushiCollectable[i].y_pos - 6, 20, 8.25); // Sushi rice base
+			// black seaweed wrap
+			fill(0); 
+			ellipse(sushiCollectable[i].x_pos + 7, sushiCollectable[i].y_pos + 4, 8, 6); // Seaweed wrap
+			rect(sushiCollectable[i].x_pos - 11.5, sushiCollectable[i].y_pos + 3, 22.75, 6); // Seaweed wrap
+			ellipse(sushiCollectable[i].x_pos, sushiCollectable[i].y_pos + 9, 22.75, 5); // Seaweed wrap
+			//toppings
+			noStroke();
+			fill(154, 205, 70, 200); // Green for wasabi
+			ellipse(sushiCollectable[i].x_pos + 3.75, sushiCollectable[i].y_pos - 6, 2.75, 7); // Small wasabi detail
+			fill(255,99,71); // Tomato color for salmon topping
+			ellipse(sushiCollectable[i].x_pos, sushiCollectable[i].y_pos - 6, 2.75, 7); // Salmon topping
+			fill(255,215,0); // Gold color for yellow fish
+			ellipse(sushiCollectable[i].x_pos - 3.75, sushiCollectable[i].y_pos - 6, 2.75, 7); // Yellow fish base
+		}
+	}
+}
+
 function checkCollectable(t_collectable)
 {
+	//check samurai sword collectables
     for(var i = 0; i < t_collectable.length; i++) 
     {
         if(!t_collectable[i].isFound && dist(gameChar_x, gameChar_y, t_collectable[i].x_pos, t_collectable[i].y_pos) <= 40)
@@ -575,6 +617,17 @@ function checkCollectable(t_collectable)
 			samuraiSound.play();
         }
     }
+
+	//check sushi collectables
+	for(var i = 0; i < sushiCollectable.length; i++){
+		if(!sushiCollectable[i].isFound && dist(gameChar_x, gameChar_y, sushiCollectable[i].x_pos, sushiCollectable[i].y_pos) <= 40	)
+		{
+			sushiCollectable[i].isFound = true;
+			sushiCollectable[i].messageTimer = millis() + 1000; // Show message for 1 second
+			game_score += 10;
+			coinSound.play();
+		}
+	}
     
     // Draw +5 "message" for collectables that were recently found
     for(var i = 0; i < t_collectable.length; i++) 
@@ -586,13 +639,23 @@ function checkCollectable(t_collectable)
             text("+5", t_collectable[i].x_pos, t_collectable[i].y_pos - 40);
         }
     }
+
+	// Draw +10 "message" for sushi collectables that were recently found
+	for(var i = 0; i < sushiCollectable.length; i++){
+		if(sushiCollectable[i].isFound && sushiCollectable[i].messageTimer && millis() < sushiCollectable[i].messageTimer)
+		{
+			fill(0);
+			textSize(10);
+			text("+10", sushiCollectable[i].x_pos, sushiCollectable[i].y_pos - 40);
+		}
+	}
 }
 
 function drawCanyon(t_canyon){
 	for(var i = 0; i < t_canyon.length; i++)
 	{
 		noStroke();
-		fill(154,180,180); //well
+		fill(154,180,180); //water well
 		rect(
 			t_canyon[i], 
 			canyon.y_pos, 
@@ -629,43 +692,75 @@ function drawCanyon(t_canyon){
 			line(t_canyon[i] + 85, canyon.y_pos + 50, t_canyon[i] + 85, canyon.y_pos + 90 );
 			line(t_canyon[i] + 86, canyon.y_pos + 100, t_canyon[i] + 86, canyon.y_pos + 175 );
 	}
+	
+	// Draw sushi collectables above regular canyons only
+	drawSushiCollectable(sushiCollectable);
 }
 
 function isTooCloseToCanyon(x) {
     for(var i = 0; i < t_canyon.length; i++) {
-        if(x > t_canyon[i] - 10 && x < t_canyon[i] + canyon.width + 10) {
+        if(x > t_canyon[i] - 5 && x < t_canyon[i] + canyon.width + 5) {
             return true;
         }
     }
     return false;
 }
 
-function renderFlagpole(){
-    push();
-    stroke(0); // Brown color
-    strokeWeight(2);
-	var screenX = flagpole.x_pos - cameraPosX;
-    line(screenX, floorPos_y, screenX, floorPos_y - 200);
-	if(flagpole.isReached == true)
+function drawLargeCanyon(t_largeCanyon){
+	for(var i = 0; i < t_largeCanyon.length; i++)
 	{
-		fill(255, 255, 255);
-		textSize(40);
-		text("LEVEL COMPLETE", width/3, height/2);
 		noStroke();
-		fill(254);
-		rect(screenX - 1, floorPos_y - 201, 70, 50);
-		fill(255, 0, 0);
-		ellipse(screenX + 32, floorPos_y - 175, 30);
+		fill(154,180,180);
+		rect(
+			t_largeCanyon[i], 
+			canyon.y_pos, 
+			canyon.width + 200, 
+			canyon.height
+		);
+		if(gameChar_x > t_largeCanyon[i] && gameChar_x < t_largeCanyon[i] + canyon.width + 200 && gameChar_y >= floorPos_y)
+		{
+			isPlummeting = true;
+			break;
+		}
 	}
-	else
-	{
 	
-		noStroke();
-		fill(254);
-		rect(screenX - 1 , floorPos_y - 49, 70, 50);
-		fill(255, 0, 0);
-		ellipse(screenX + 32, floorPos_y - 26, 30);
-	}
+	// Draw floating steps above large canyons only
+	drawFloatingSteps();
+}
+
+function renderFlagpole(){
+    // Adjust flagpole position to maintain 5px spacing from canyons
+    for(var i = 0; i < t_canyon.length; i++) {
+        if(flagpole.x_pos > t_canyon[i] - 5 && flagpole.x_pos < t_canyon[i] + canyon.width + 5) {
+            flagpole.x_pos = t_canyon[i] + canyon.width + 5;
+        }
+    }
+    
+    push();
+    stroke(0);
+    strokeWeight(2);
+    var screenX = flagpole.x_pos - cameraPosX;
+    line(screenX, floorPos_y, screenX, floorPos_y - 200);
+    
+    if(flagpole.isReached == true)
+    {
+        fill(255, 255, 255);
+        textSize(40);
+        text("LEVEL COMPLETE", width/3, height/2);
+        noStroke();
+        fill(254);
+        rect(screenX - 1, floorPos_y - 201, 70, 50);
+        fill(255, 0, 0);
+        ellipse(screenX + 32, floorPos_y - 175, 30);
+    }
+    else
+    {
+        noStroke();
+        fill(254);
+        rect(screenX - 1 , floorPos_y - 49, 70, 50);
+        fill(255, 0, 0);
+        ellipse(screenX + 32, floorPos_y - 26, 30);
+    }
     pop();
 }
 
@@ -674,13 +769,12 @@ function checkFlagPole(){
     if(d < 15)
     {
         flagpole.isReached = true;
-		isRight = false; // Stop character movement when flagpole is reached
-		isLeft = false; // Stop character movement when flagpole is reached
-		isJumping = false; // Stop jumping when flagpole is reached
-		isPlummeting = false; // Stop plummeting when flagpole is reached
-		gameChar_x = flagpole.x_pos; // Center character on flagpole
-		gameChar_y = floorPos_y; // Reset character to ground level
-		game_score += 10; // Add score for reaching the flagpole
+		isRight = false; 
+		isLeft = false; 
+		isJumping = false;
+		isPlummeting = false; 
+		gameChar_x = flagpole.x_pos; 
+		gameChar_y = floorPos_y;
     }
     console.log(d);
 }
@@ -697,10 +791,10 @@ function Enemy(x, y, range) {
 			// Check if the enemy has reached the range limits
 			// Reverse direction if it has
 			if(this.currentX >= this.x + this.range) {
-				this.increment = -1; // Reverse direction
+				this.increment = -1.5; // Reverse direction
 			}
 			else if(this.currentX < this.x - this.range) {
-				this.increment = 1; // Reverse direction
+				this.increment = 1.5; // Reverse direction
 			}
 		}
 		this.draw = function() {
@@ -810,7 +904,7 @@ function Enemy(x, y, range) {
 		}
 		this.reset = function() {
 			this.currentX = this.x; // Reset to initial position
-			this.increment = 2; // Reset increment
+			this.increment = 3; // Reset increment
 		}
 		this.move = function() {
 			this.currentX += this.increment;
@@ -831,7 +925,7 @@ function Enemy(x, y, range) {
 function drawGameChar(){
 	if(isLeft && isJumping)
 	{
-	// add your jumping-left code
+	// jumping-left code
 		stroke(0);
 		strokeWeight(1);
 		//left ear
@@ -915,7 +1009,7 @@ function drawGameChar(){
 	}
 	else if(isRight && isJumping)
 	{
-	// add your jumping-right code
+	// jumping-right code
 		stroke(0);
 		strokeWeight(1);	
 		//left ear
@@ -999,7 +1093,7 @@ function drawGameChar(){
 	}
 	else if(isLeft)
 	{
-	// add your walking left code
+	// walking left code
 		stroke(0);
 		strokeWeight(1);
 
@@ -1078,7 +1172,7 @@ function drawGameChar(){
 	}
 	else if(isRight)
 	{
-	// add your walking right code
+	// walking right code
 		stroke(0);
 		strokeWeight(1);
 		//left ear
