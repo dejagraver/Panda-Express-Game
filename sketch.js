@@ -1,8 +1,12 @@
-//ACTION VARIABLES
+//ACTION/SOUND VARIABLES
 var isLeft;
 var isRight;
 var isJumping;
 var isPlummeting;
+var jumpSound;
+var samuraiSound;
+var coinSound;
+var deathSound;
 
 //ITEM VARIABLES
 var gameChar_x;
@@ -40,12 +44,9 @@ var mountainArray_x;
 var stepsArray;
 var t_canyon;
 
-var jumpSound;
-
 function preload()
 {
     soundFormats('mp3','wav');
-    //load your sounds here
     jumpSound = loadSound('assets/snowjump.wav');
     jumpSound.setVolume(0.8);
 	samuraiSound = loadSound('assets/samurai.wav');
@@ -59,7 +60,6 @@ function preload()
 
 function setup()
 {
-	// createCanvas(windowWidth, windowHeight);
 	createCanvas(1024, 576);
 	angleMode(DEGREES);
 
@@ -73,14 +73,14 @@ function setup()
 	floorPos_y = height * 3/4;
 	gameChar_x = width/8;
 	gameChar_y = floorPos_y;
-	gameCharLives = 5; //number of lives
+	gameCharLives = 3; //number of lives
 	game_score = 0;
 	collisionTimer = 0;
 	gameChar_world_x = gameChar_x;
 
 	//Enemies
 	enemies = []; 
-	enemies.push(new Enemy(500, floorPos_y, 100));
+	enemies.push(new Enemy(700, floorPos_y, 200));
 
 
 	//Game Character Movement
@@ -136,18 +136,18 @@ function setup()
 	}
 	canyon = {x_pos: 400, y_pos: 432, width: 90, height: 200};
 
-	// Canyon - draw a large Canyon at safe positions
-	t_largeCanyon = [1500, 2600]; // Fixed positions away from small canyons
+	// Canyon - draw large Canyon at fixed position
+	t_largeCanyon = [1500, 2600]; 
 
 	//Floating Steps - position over large canyons
 	stepsArray = [];
 	for(var i = 0; i < t_largeCanyon.length; i++){
-		var stepX = t_largeCanyon[i] + 20; 
-		var stepY = 300;
+		var stepX = t_largeCanyon[i] - 30; 
+		var stepY = 350;
 		for(var j = 0; j < 3; j++){
 			stepsArray.push({
-				x_pos: stepX + (j * 180),
-				y_pos: stepY - (j * 50),
+				x_pos: stepX + (j * 150), // Each step is 160 pixels to the right of the last
+				y_pos: stepY - (j * 40), // Each step is 40 pixels higher than the last
 				width: 50,
 				height: 20,
 			});
@@ -273,7 +273,7 @@ function draw()
 	// Make character fall if plummeting
 	if(isPlummeting == true)
 	{
-		gameChar_y += 10;
+		gameChar_y += 7;
 	}
 	// Return to false for isJumping and isPlummeting when character is on the ground.
 	if(gameChar_y >= floorPos_y && !isPlummeting)
@@ -294,12 +294,10 @@ function draw()
 	drawCollectable(t_collectable);
 	checkCollectable(t_collectable);
 
-
 	//GAMECHARACTER
 	drawGameChar();
-	//Game Character in the center of the screen/scroling view
-	cameraPosX = gameChar_x - width/4
-	
+	cameraPosX = gameChar_x - width/4 //Game Character in the center of the screen/scroling view
+
 	pop();
 
 	//FLAGPOLE
@@ -345,16 +343,16 @@ function draw()
 	//Moving Left or Right
 	if(isLeft == true)
 	{
-		gameChar_x -= 8;
+		gameChar_x -= 3;
 	}
 	if(isRight == true)
 	{
-		gameChar_x += 5;
+		gameChar_x += 3;
 	}
 
 	if(gameChar_y < floorPos_y)
 	{
-		gameChar_y += 2; //increments the speed in which you can see the character falling 
+		gameChar_y += 1; //increments the speed in which you can see the character falling 
 		isJumping = true; //ensures the falling/jumping image of the character appears
 	}
 	else
@@ -380,8 +378,6 @@ function draw()
 	} else {
 		isJumping = false;
 	}
-
-
 	gameChar_world_x = gameChar_x - scrollPos;
 }
 
@@ -432,7 +428,6 @@ function drawSnow(){
 		ellipse(snowPositionsX[i], snowPositionsY[i], r, r);
 		snowPositionsX[i] += snowDirectionX[i];
 		snowPositionsY[i] += snowDirectionY[i];
-
 	}
 }
 function drawClouds(){
@@ -491,14 +486,14 @@ function drawMountains()
 				mountainArray_x[i] + 225, mountain.y_pos + 270); //Background Mountain //825
 				//  Background Mountain Snowy Peak
 				fill(255, 255, 255);
-				triangle(mountainArray_x[i] + 105.5, mountain.y_pos - 1, //705.5, 180
-						mountainArray_x[i] + 90, mountain.y_pos + 38,		 //690, 203
-						mountainArray_x[i] + 153, mountain.y_pos + 105);	 //653, 285
+				triangle(mountainArray_x[i] + 105.5, mountain.y_pos - 1, //x = 705.5, y = 180
+						mountainArray_x[i] + 90, mountain.y_pos + 38,	//690, 203
+						mountainArray_x[i] + 153, mountain.y_pos + 105); //653, 285
 				triangle(mountainArray_x[i] + 105.5, mountain.y_pos - 1,  //705.5, 180
-						mountainArray_x[i] + 120, mountain.y_pos + 38,		 //720, 203
+						mountainArray_x[i] + 120, mountain.y_pos + 38,	//720, 203
 						mountainArray_x[i] + 64, mountain.y_pos + 105);	 //664, 285
-				triangle(mountainArray_x[i] + 90, mountain.y_pos + 50,    //690, 230
-						mountainArray_x[i] + 80, mountain.y_pos + 100,		 //680, 280
+				triangle(mountainArray_x[i] + 90, mountain.y_pos + 50,   //690, 230
+						mountainArray_x[i] + 80, mountain.y_pos + 100,	//680, 280
 						mountainArray_x[i] + 120, mountain.y_pos + 45);	 //720, 225
 
 		fill(150,150,150); //Dark Grey
@@ -558,7 +553,8 @@ function drawCollectable(t_collectable){
 		{
 			noStroke();
 			fill(0);
-			rect(t_collectable[i].x_pos, t_collectable[i].y_pos, t_collectable[i].size + 3, t_collectable[i].size + 15) //samurai sword black handle 
+			//samurai sword black handle 
+			rect(t_collectable[i].x_pos, t_collectable[i].y_pos, t_collectable[i].size + 3, t_collectable[i].size + 15) 
 			//samurai sword blade
 			fill(211, 211, 211);
 			rect(t_collectable[i].x_pos, t_collectable[i].y_pos - 30, 4, 30)
@@ -723,7 +719,6 @@ function drawLargeCanyon(t_largeCanyon){
 			break;
 		}
 	}
-	
 	// Draw floating steps above large canyons only
 	drawFloatingSteps();
 }
@@ -791,10 +786,10 @@ function Enemy(x, y, range) {
 			// Check if the enemy has reached the range limits
 			// Reverse direction if it has
 			if(this.currentX >= this.x + this.range) {
-				this.increment = -1.5; // Reverse direction
+				this.increment = -1; // Reverse direction
 			}
 			else if(this.currentX < this.x - this.range) {
-				this.increment = 1.5; // Reverse direction
+				this.increment = +1; // Reverse direction
 			}
 		}
 		this.draw = function() {
@@ -896,7 +891,7 @@ function Enemy(x, y, range) {
 		}
 		this.checkCollision = function(gameChar_x, gameChar_y) {
 			var d = dist(this.currentX, this.y, gameChar_x, gameChar_y);
-			if(d < 50) { // Collision radius
+			if(d < 40) { // Collision radius
 				return true;
 			} else {
 				return false;
@@ -922,135 +917,492 @@ function Enemy(x, y, range) {
 		}
 }
 
-// Helper functions for character drawing
-function drawCharacterHead(x, y, showEarLobes) {
-	stroke(0);
-	strokeWeight(1);
-	
-	// Ears
-	fill(0);
-	ellipse(x - 8, y - 55, 8, 9);
-	ellipse(x + 8, y - 55, 8, 9);
-	
-	if(showEarLobes) {
+function drawGameChar(){
+	if(isLeft && isJumping)
+	{
+	// jumping-left code
+		stroke(0);
+		strokeWeight(1);
+		//left ear
+		fill(0);
+		ellipse(gameChar_x - 8, gameChar_y - 55, 8, 9);
+
+		//right ear
+		fill(0);
+		ellipse(gameChar_x + 8, gameChar_y - 55, 8, 9);
+
+		//neck
+		fill(0);
+		rect(gameChar_x - 2, gameChar_y - 41, 4, 8);
+
+		//Head
+		fill(255);
+		ellipse(gameChar_x, gameChar_y - 48, 17.5, 18);
+
+		//Left eye
+		fill(0);
+		ellipse(gameChar_x - 4, gameChar_y - 49, 5, 6);
+
+		//Right eye
+		fill(0);
+		ellipse(gameChar_x + 4.5, gameChar_y - 49, 5, 6);
+
+		//Left eye pupil
+		stroke(0);	
+		strokeWeight(0.5);
+		fill(255);
+		ellipse(gameChar_x - 4, gameChar_y - 49, 2, 2);
+		ellipse(gameChar_x - 3, gameChar_y - 48, 2, 2);
+
+		//Right eye pupil
+		fill(255);
+		ellipse(gameChar_x + 5, gameChar_y - 49, 2, 2);
+		ellipse(gameChar_x + 6, gameChar_y - 48, 2, 2);
+
+		//mouth
 		fill(255,192,203);
-		ellipse(x - 8, y - 54, 5, 5);
-		ellipse(x + 8, y - 54, 5, 5);
+		ellipse(gameChar_x, gameChar_y - 44, 4, 2);
+
+		//Left Leg
+		fill(0);
+		rect(gameChar_x - 8, gameChar_y - 14, 4, 8);
+			//Left Leg Bent
+			fill(0);
+			rect(gameChar_x - 8, gameChar_y -6, 8, 3);
+				//Left Foot
+				fill(0);
+				ellipse(gameChar_x , gameChar_y -2, 4, 8);
+
+		//Right Leg
+		fill(0);
+		rect(gameChar_x + 4, gameChar_y - 14, 4, 8);
+			//Right Leg Bent
+			fill(0);
+			rect(gameChar_x + 4, gameChar_y -6, 8, 3);
+				//Right Foot
+				fill(0);
+				ellipse(gameChar_x + 12, gameChar_y -2, 4, 8);
+
+		//body
+		fill(255);
+		ellipse(gameChar_x, gameChar_y - 24.25, 24, 28);
+				//body black chest
+				fill(0);
+				ellipse(gameChar_x, gameChar_y - 30, 22, 16);
+
+		//Left Arm
+		fill(0);
+		ellipse(gameChar_x - 12, gameChar_y - 27, 4, 8);
+				//Left Arm Bent
+				fill(0);
+				ellipse(gameChar_x - 15, gameChar_y - 23, 9, 4);
+
+		//Right Arm 
+		fill(0);
+		ellipse(gameChar_x + 12, gameChar_y - 25, 4, 14);
 	}
-	// Neck
-	fill(0);
-	rect(x - 2, y - 41, 4, 8);
-	
-	// Head
-	fill(255);
-	ellipse(x, y - 48, 17.5, 18);
-	
-	// Eyes
-	fill(0);
-	ellipse(x - 4, y - 49, 5, 6);
-	ellipse(x + 4.5, y - 49, 5, 6);
-	
-	// Eye pupils
-	stroke(0);
-	strokeWeight(0.5);
-	fill(255);
-	ellipse(x - 4, y - 49, 2, 2);
-	ellipse(x - 3, y - 48, 2, 2);
-	ellipse(x + 5, y - 49, 2, 2);
-	ellipse(x + 6, y - 48, 2, 2);
-	
-	// Mouth
-	fill(255,192,203);
-	ellipse(x, y - 44, 4, 2);
-}
+	else if(isRight && isJumping)
+	{
+	// jumping-right code
+		stroke(0);
+		strokeWeight(1);	
+		//left ear
+		fill(0); 
+		ellipse(gameChar_x - 8, gameChar_y - 55, 8, 9);
 
-function drawCharacterBody(x, y) {
-	fill(255);
-	ellipse(x, y - 24.25, 24, 28);
-	fill(0);
-	ellipse(x, y - 30, 22, 16);
-}
+		//right ear
+		fill(0);
+		ellipse(gameChar_x + 8, gameChar_y - 55, 8, 9);
 
-function drawCharacterLegs(x, y, state) {
-	fill(0);
-	if(state === 'jumping') {
-		// Bent legs for jumping
-		rect(x - 8, y - 14, 4, 8);
-		rect(x - 8, y - 6, 8, 3);
-		ellipse(x, y - 2, 4, 8);
+		//neck
+		fill(0);
+		rect(gameChar_x - 2, gameChar_y - 41, 4, 8);
+
+		//Head
+		fill(255);
+		ellipse(gameChar_x, gameChar_y - 48, 17.5, 18);
+
+		//Left eye
+		fill(0);
+		ellipse(gameChar_x - 4, gameChar_y - 49, 5, 6);
+
+		//Right eye
+		fill(0);
+		ellipse(gameChar_x + 4.5, gameChar_y - 49, 5, 6);
+
+		//Left eye pupil
+		stroke(0);	
+		strokeWeight(0.5);
+		fill(255);
+		ellipse(gameChar_x - 4, gameChar_y - 49, 2, 2);
+		ellipse(gameChar_x - 3, gameChar_y - 48, 2, 2);
+
+		//Right eye pupil
+		fill(255);
+		ellipse(gameChar_x + 5, gameChar_y - 49, 2, 2);
+		ellipse(gameChar_x + 6, gameChar_y - 48, 2, 2);
+
+		//mouth
+		fill(255,192,203);
+		ellipse(gameChar_x, gameChar_y - 44, 4, 2);
 		
-		rect(x + 4, y - 14, 4, 8);
-		rect(x + 4, y - 6, 8, 3);
-		ellipse(x + 12, y - 2, 4, 8);
-	} else if(state === 'walkingLeft') {
-		rect(x - 8, y - 14, 4, 12);
-		ellipse(x - 8, y - 2, 8, 4);
-		rect(x + 4, y - 14, 4, 12);
-		ellipse(x + 4, y - 2, 8, 4);
-	} else if(state === 'walkingRight') {
-		rect(x - 8, y - 14, 4, 12);
-		ellipse(x - 4, y - 2, 8, 4);
-		rect(x + 4, y - 14, 4, 12);
-		ellipse(x + 8, y - 2, 8, 4);
-	} else {
-		// Standing
-		rect(x - 8, y - 14, 4, 12);
-		ellipse(x - 8, y - 2, 8, 4);
-		rect(x + 4, y - 14, 4, 12);
-		ellipse(x + 8, y - 2, 8, 4);
-	}
-}
+		//Left Leg
+		fill(0);
+		rect(gameChar_x - 8, gameChar_y - 14, 4, 8);
+			//Left Leg Bent
+			fill(0);
+			rect(gameChar_x - 12, gameChar_y -6, 8, 3);
+				//Left Foot
+				fill(0);
+				ellipse(gameChar_x -12, gameChar_y -2, 4, 8);
 
-function drawCharacterArms(x, y, state) {
-	fill(0);
-	if(state === 'jumpingLeft') {
-		ellipse(x - 12, y - 27, 4, 8);
-		ellipse(x - 15, y - 23, 9, 4);
-		ellipse(x + 12, y - 25, 4, 14);
-	} else if(state === 'jumpingRight') {
-		ellipse(x - 12, y - 25, 4, 14);
-		ellipse(x + 12, y - 27, 4, 8);
-		ellipse(x + 15, y - 23, 9, 4);
-	} else if(state === 'walkingLeft') {
-		ellipse(x - 12, y - 27, 4, 8);
-		ellipse(x - 15, y - 23, 9, 4);
-		ellipse(x + 12, y - 25, 4, 14);
-	} else if(state === 'walkingRight') {
-		ellipse(x - 12, y - 25, 4, 14);
-		ellipse(x + 12, y - 27, 4, 8);
-		ellipse(x + 15, y - 23, 9, 4);
-	} else if(state === 'jumping') {
-		ellipse(x - 10, y - 37, 4, 14);
-		ellipse(x + 10, y - 37, 4, 14);
-	} else {
-		// Standing
-		ellipse(x - 14, y - 32, 10, 4);
-		ellipse(x - 18, y - 36, 4, 10);
-		ellipse(x + 14, y - 32, 10, 4);
-		ellipse(x + 18, y - 36, 4, 10);
-	}
-}
+		//Right Leg
+		fill(0);
+		rect(gameChar_x + 4, gameChar_y - 14, 4, 8);
+			//Right Leg Bent
+			fill(0);
+			rect(gameChar_x, gameChar_y -6, 8, 3);
+				//Right Foot
+				fill(0);
+				ellipse(gameChar_x, gameChar_y -2, 4, 8);
 
-function drawGameChar() {
-	let state = 'standing';
-	let showEarLobes = false;
+		//body
+		fill(255);
+		ellipse(gameChar_x, gameChar_y - 24.25, 24, 28);
+				//body black chest
+				fill(0);
+				ellipse(gameChar_x, gameChar_y - 30, 22, 16);
+
+		//Left Arm
+		fill(0);
+		ellipse(gameChar_x - 12, gameChar_y - 25, 4, 14);
+
+		//Right Arm 
+		fill(0);
+		ellipse(gameChar_x + 12, gameChar_y - 27, 4, 8);
+			//Right Arm Bent
+			fill(0);
+			ellipse(gameChar_x + 15, gameChar_y - 23, 9, 4);
+	}
+	else if(isLeft)
+	{
+	// walking left code
+		stroke(0);
+		strokeWeight(1);
+
+		//left ear
+		fill(0);
+		ellipse(gameChar_x - 8, gameChar_y - 55, 8, 9);
+
+		//right ear
+		fill(0);
+		ellipse(gameChar_x + 8, gameChar_y - 55, 8, 9);
+
+		//neck
+		fill(0);
+		rect(gameChar_x - 2, gameChar_y - 41, 4, 8);
+
+		//Head
+		fill(255);
+		ellipse(gameChar_x, gameChar_y - 48, 17.5, 18);
+
+		//Left eye
+		fill(0);
+		ellipse(gameChar_x - 4, gameChar_y - 49, 5, 6);
+
+		//Right eye
+		fill(0);
+		ellipse(gameChar_x + 4.5, gameChar_y - 49, 5, 6);
+
+		//Left eye pupil
+		stroke(0);	
+		strokeWeight(0.5);
+		fill(255);
+		ellipse(gameChar_x - 4, gameChar_y - 49, 2, 2);
+		ellipse(gameChar_x - 3, gameChar_y - 48, 2, 2);
+
+		//Right eye pupil
+		fill(255);
+		ellipse(gameChar_x + 5, gameChar_y - 49, 2, 2);
+		ellipse(gameChar_x + 6, gameChar_y - 48, 2, 2);
+
+		//mouth
+		fill(255,192,203);
+		ellipse(gameChar_x, gameChar_y - 44, 4, 2);
+
+		//Left Leg
+		fill(0);
+		rect(gameChar_x - 8, gameChar_y - 14, 4, 12);
+			//Left Foot
+			fill(0);
+			ellipse(gameChar_x - 8, gameChar_y -2, 8, 4);
+
+		//Right Leg
+		fill(0);
+		rect(gameChar_x + 4, gameChar_y - 14, 4, 12);
+			//Right Foot 
+			fill(0);
+			ellipse(gameChar_x + 4, gameChar_y -2, 8, 4);
+
+		//body
+		fill(255);
+		ellipse(gameChar_x, gameChar_y - 24.25, 24, 28);
+				//body black chest
+				fill(0);
+				ellipse(gameChar_x, gameChar_y - 30, 22, 16);
+
+		//Left Arm
+		fill(0);
+		ellipse(gameChar_x - 12, gameChar_y - 27, 4, 8);
+				//Left Arm Bent
+				fill(0);
+				ellipse(gameChar_x - 15, gameChar_y - 23, 9, 4);
+
+		//Right Arm 
+		fill(0);
+		ellipse(gameChar_x + 12, gameChar_y - 25, 4, 14);
+	}
+	else if(isRight)
+	{
+	// walking right code
+		stroke(0);
+		strokeWeight(1);
+		//left ear
+		fill(0);
+		ellipse(gameChar_x - 8, gameChar_y - 55, 8, 9);
 	
-	if(isLeft && isJumping) {
-		state = 'jumpingLeft';
-	} else if(isRight && isJumping) {
-		state = 'jumpingRight';
-	} else if(isLeft) {
-		state = 'walkingLeft';
-	} else if(isRight) {
-		state = 'walkingRight';
-	} else if(isJumping || isPlummeting) {
-		state = 'jumping';
-	} else {
-		state = 'standing';
-		showEarLobes = true;
+		//right ear
+		fill(0);
+		ellipse(gameChar_x + 8, gameChar_y - 55, 8, 9);
+	
+		//neck
+		fill(0);
+		rect(gameChar_x - 2, gameChar_y - 41, 4, 8);
+
+		//Head
+		fill(255);
+		ellipse(gameChar_x, gameChar_y - 48, 17.5, 18);
+
+		//Left eye
+		fill(0);
+		ellipse(gameChar_x - 4, gameChar_y - 49, 5, 6);
+
+		//Right eye
+		fill(0);
+		ellipse(gameChar_x + 4.5, gameChar_y - 49, 5, 6);
+
+		//Left eye pupil
+		stroke(0);	
+		strokeWeight(0.5);
+		fill(255);
+		ellipse(gameChar_x - 4, gameChar_y - 49, 2, 2);
+		ellipse(gameChar_x - 3, gameChar_y - 48, 2, 2);
+
+		//Right eye pupil
+		fill(255);
+		ellipse(gameChar_x + 5, gameChar_y - 49, 2, 2);
+		ellipse(gameChar_x + 6, gameChar_y - 48, 2, 2);
+
+		//mouth
+		fill(255,192,203);
+		ellipse(gameChar_x, gameChar_y - 44, 4, 2);
+	
+		//Left Leg
+		fill(0);
+		rect(gameChar_x - 8, gameChar_y - 14, 4, 12);
+			//Left Foot
+			fill(0);
+			ellipse(gameChar_x - 4, gameChar_y -2, 8, 4);
+	
+		//Right Leg
+		fill(0);
+		rect(gameChar_x + 4, gameChar_y - 14, 4, 12);
+			//Right Foot 
+			fill(0);
+			ellipse(gameChar_x + 8, gameChar_y -2, 8, 4);
+
+		//body
+		fill(255);
+		ellipse(gameChar_x, gameChar_y - 24.25, 24, 28);
+				//body black chest
+				fill(0);
+				ellipse(gameChar_x, gameChar_y - 30, 22, 16);
+
+		//Left Arm
+		fill(0);
+		ellipse(gameChar_x - 12, gameChar_y - 25, 4, 14);
+	
+		//Right Arm 
+		fill(0);
+		ellipse(gameChar_x + 12, gameChar_y - 27, 4, 8);
+			//Right Arm Bent
+			fill(0);
+			ellipse(gameChar_x + 15, gameChar_y - 23, 9, 4);
 	}
-	drawCharacterHead(gameChar_x, gameChar_y, showEarLobes);
-	drawCharacterBody(gameChar_x, gameChar_y);
-	drawCharacterLegs(gameChar_x, gameChar_y, state === 'jumping' || state === 'jumpingLeft' || state === 'jumpingRight' ? 'jumping' : state);
-	drawCharacterArms(gameChar_x, gameChar_y, state);
+	else if(isJumping || isPlummeting)
+	{
+	//jumping facing forwards code
+		//left ear
+		stroke(0);	
+		strokeWeight(1); 
+		fill(0);
+		ellipse(gameChar_x - 8, gameChar_y - 55, 9, 9);
+
+		//right ear
+		fill(0);
+		ellipse(gameChar_x + 8, gameChar_y - 55, 9, 9);
+
+		//neck
+		fill(0);
+		rect(gameChar_x - 2, gameChar_y - 41, 4, 8);
+
+		//Head
+		fill(255);
+		ellipse(gameChar_x, gameChar_y - 48, 18, 18);
+
+		//Left eye
+		fill(0);
+		ellipse(gameChar_x - 4, gameChar_y - 49, 5, 6);
+
+		//Right eye
+		fill(0);
+		ellipse(gameChar_x + 4.5, gameChar_y - 49, 5, 6);
+
+		//Left eye pupil
+		stroke(0);	
+		strokeWeight(0.5);
+		fill(255);
+		ellipse(gameChar_x - 4, gameChar_y - 49, 2, 2);
+		ellipse(gameChar_x - 3, gameChar_y - 48, 2, 2);
+
+		//Right eye pupil
+		fill(255);
+		ellipse(gameChar_x + 5, gameChar_y - 49, 2, 2);
+		ellipse(gameChar_x + 6, gameChar_y - 48, 2, 2);
+
+		//mouth
+		fill(255,192,203);
+		ellipse(gameChar_x, gameChar_y - 44, 4, 2);
+
+		//Left Leg
+		fill(0);
+		rect(gameChar_x - 8, gameChar_y - 14, 4, 8);
+			//Left Leg Bent
+			fill(0);
+			rect(gameChar_x - 8, gameChar_y -6, 8, 3);
+				//Left Foot
+				fill(0);
+				ellipse(gameChar_x , gameChar_y -2, 4, 8);
+
+		//Right Leg
+		fill(0);
+		rect(gameChar_x + 4, gameChar_y - 14, 4, 8);
+			//Right Leg Bent
+			fill(0);
+			rect(gameChar_x + 4, gameChar_y -6, 8, 3);
+				//Right Foot
+				fill(0);
+				ellipse(gameChar_x + 12, gameChar_y -2, 4, 8);
+		//body
+		fill(255);
+		ellipse(gameChar_x, gameChar_y - 24.25, 24, 28);
+				//body black chest
+				fill(0);
+				ellipse(gameChar_x, gameChar_y - 30, 22, 16);
+
+		//Left Arm
+		fill(0);
+		ellipse(gameChar_x - 10, gameChar_y - 37, 4, 14);
+
+		//Right Arm 
+		fill(0);
+		ellipse(gameChar_x + 10, gameChar_y - 37, 4, 14);
+	}
+	else
+	{
+	//standing front facing code
+		stroke(0);
+		strokeWeight(1);
+		//left ear
+		fill(0);
+		ellipse(gameChar_x - 8, gameChar_y - 55, 9, 9);
+			//pink ear lobe
+			fill(255,192,203);
+			ellipse(gameChar_x - 8, gameChar_y - 54, 5, 5);
+
+		//right ear
+		fill(0);
+		ellipse(gameChar_x + 8, gameChar_y - 55, 9, 9);
+			//pink ear lobe
+			fill(255,192,203);
+			ellipse(gameChar_x + 8, gameChar_y - 54, 5, 5);
+
+		//neck
+		fill(0);
+		rect(gameChar_x - 2, gameChar_y - 41, 4, 8);
+
+		//Head
+		fill(255);
+		ellipse(gameChar_x, gameChar_y - 48, 18, 18);
+
+		//Left eye
+		fill(0);
+		ellipse(gameChar_x - 4, gameChar_y - 49, 5, 6);
+
+		//Right eye
+		fill(0);
+		ellipse(gameChar_x + 4.5, gameChar_y - 49, 5, 6);
+
+		//Left eye pupil
+		stroke(0);	
+		strokeWeight(0.5);
+		fill(255);
+		ellipse(gameChar_x - 4, gameChar_y - 49, 2, 2);
+		ellipse(gameChar_x - 3, gameChar_y - 48, 2, 2);
+
+		//Right eye pupil
+		fill(255);
+		ellipse(gameChar_x + 5, gameChar_y - 49, 2, 2);
+		ellipse(gameChar_x + 6, gameChar_y - 48, 2, 2);
+
+		//mouth
+		fill(255,192,203);
+		ellipse(gameChar_x, gameChar_y - 44, 4, 2);
+
+		//Left Leg
+		fill(0);
+		rect(gameChar_x - 8, gameChar_y - 14, 4, 12);
+			//Left Foot
+			fill(0);
+			ellipse(gameChar_x - 8, gameChar_y -2, 8, 4);
+
+		//Right Leg
+		fill(0);
+		rect(gameChar_x + 4, gameChar_y - 14, 4, 12);
+			//Right Foot 
+			fill(0);
+			ellipse(gameChar_x + 8, gameChar_y -2, 8, 4);
+
+		//body
+		fill(255);
+		ellipse(gameChar_x, gameChar_y - 24.25, 24, 28);
+			//body black chest
+			fill(0);
+			ellipse(gameChar_x, gameChar_y - 30, 22, 16);
+
+		//Left Arm
+		fill(0);
+		ellipse(gameChar_x - 14, gameChar_y - 32, 10, 4);
+				//Left Arm Bent
+				fill(0);
+				ellipse(gameChar_x - 18, gameChar_y - 36, 4, 10);
+		
+		//Right Arm 
+		fill(0);
+		ellipse(gameChar_x + 14, gameChar_y - 32, 10, 4);
+				//Right Arm Bent
+				fill(0);
+				ellipse(gameChar_x + 18, gameChar_y - 36, 4, 10);
+	}
+	pop();
 }
